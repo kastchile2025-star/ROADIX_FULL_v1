@@ -1,0 +1,20 @@
+{{#> layout}}
+<h2>Documento Tributario Emitido</h2>
+<p>Hola <strong>{{cliente_nombre}}</strong>,</p>
+<p>Se ha emitido un documento tributario asociado a su orden de trabajo.</p>
+<div class="info-box">
+  <dl>
+    <dt>Tipo:</dt><dd>{{tipo_dte}}</dd>
+    <dt>N° DTE:</dt><dd>{{numero_dte}}</dd>
+    <dt>Orden de Trabajo:</dt><dd>{{numero_ot}}</dd>
+    <dt>Monto Neto:</dt><dd>${{monto_neto}}</dd>
+    <dt>IVA:</dt><dd>${{iva}}</dd>
+    <dt>Total:</dt><dd><strong>${{monto_total}}</strong></dd>
+  </dl>
+</div>
+{{#if pdf_url}}
+<p style="text-align: center; margin-top: 16px;">
+  <a href="{{pdf_url}}" class="btn">Descargar Documento</a>
+</p>
+{{/if}}
+{{/layout}}

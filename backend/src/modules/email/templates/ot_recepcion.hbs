@@ -1,0 +1,20 @@
+{{#> layout}}
+<h2>Recepción de Vehículo</h2>
+<p>Hola <strong>{{cliente_nombre}}</strong>,</p>
+<p>Le confirmamos que su vehículo ha sido recepcionado en nuestro taller.</p>
+<div class="info-box">
+  <dl>
+    <dt>Orden de Trabajo:</dt><dd>{{numero_ot}}</dd>
+    <dt>Vehículo:</dt><dd>{{vehiculo_marca}} {{vehiculo_modelo}} — {{vehiculo_patente}}</dd>
+    <dt>Fecha Ingreso:</dt><dd>{{fecha_ingreso}}</dd>
+    <dt>Motivo:</dt><dd>{{motivo}}</dd>
+  </dl>
+</div>
+{{#if portal_url}}
+<p>Puede seguir el estado de su vehículo en tiempo real:</p>
+<p style="text-align: center; margin-top: 16px;">
+  <a href="{{portal_url}}" class="btn">Ver Estado de mi Vehículo</a>
+</p>
+{{/if}}
+<p>Le notificaremos cuando tengamos novedades sobre su vehículo.</p>
+{{/layout}}

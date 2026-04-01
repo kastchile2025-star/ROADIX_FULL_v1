@@ -1,0 +1,19 @@
+{{#> layout}}
+<h2>¡Su Vehículo está Listo!</h2>
+<p>Hola <strong>{{cliente_nombre}}</strong>,</p>
+<p>Nos complace informarle que la reparación de su vehículo ha sido completada.</p>
+<div class="info-box">
+  <dl>
+    <dt>Orden de Trabajo:</dt><dd>{{numero_ot}}</dd>
+    <dt>Vehículo:</dt><dd>{{vehiculo_marca}} {{vehiculo_modelo}} — {{vehiculo_patente}}</dd>
+    <dt>Total:</dt><dd><strong>${{total}}</strong></dd>
+  </dl>
+</div>
+<p>Puede pasar a retirar su vehículo en horario de atención.</p>
+{{#if portal_url}}
+<p style="text-align: center; margin-top: 16px;">
+  <a href="{{portal_url}}" class="btn">Ver Detalle Completo</a>
+</p>
+{{/if}}
+<p>¡Gracias por confiar en nosotros!</p>
+{{/layout}}

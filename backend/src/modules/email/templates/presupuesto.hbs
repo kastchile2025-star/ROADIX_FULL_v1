@@ -1,0 +1,21 @@
+{{#> layout}}
+<h2>Presupuesto Disponible</h2>
+<p>Hola <strong>{{cliente_nombre}}</strong>,</p>
+<p>Le informamos que el presupuesto para la reparación de su vehículo está listo.</p>
+<div class="info-box">
+  <dl>
+    <dt>Orden de Trabajo:</dt><dd>{{numero_ot}}</dd>
+    <dt>Vehículo:</dt><dd>{{vehiculo_marca}} {{vehiculo_modelo}} — {{vehiculo_patente}}</dd>
+    <dt>Subtotal:</dt><dd>${{subtotal}}</dd>
+    <dt>IVA (19%):</dt><dd>${{iva}}</dd>
+    <dt>Total:</dt><dd><strong>${{total}}</strong></dd>
+  </dl>
+</div>
+{{#if portal_url}}
+<p>Puede revisar el detalle y aprobar el presupuesto en línea:</p>
+<p style="text-align: center; margin-top: 16px;">
+  <a href="{{portal_url}}" class="btn">Ver y Aprobar Presupuesto</a>
+</p>
+{{/if}}
+<p>Si tiene dudas, no dude en contactarnos.</p>
+{{/layout}}
