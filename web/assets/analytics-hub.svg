@@ -1,0 +1,20 @@
+<svg width="720" height="540" viewBox="0 0 720 540" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="720" height="540" rx="32" fill="#0A1C30"/>
+  <rect x="88" y="74" width="544" height="392" rx="28" fill="#102A45" stroke="#2D5C90" stroke-width="2"/>
+  <text x="118" y="126" fill="#A5C6F1" font-family="Arial, sans-serif" font-size="20" font-weight="700">Analytics Hub</text>
+  <rect x="118" y="154" width="156" height="116" rx="24" fill="#143A61"/>
+  <rect x="292" y="154" width="156" height="116" rx="24" fill="#143A61"/>
+  <rect x="466" y="154" width="136" height="116" rx="24" fill="#143A61"/>
+  <text x="142" y="194" fill="#8FB7E8" font-family="Arial, sans-serif" font-size="18">Ingresos</text>
+  <text x="142" y="238" fill="#F5FAFF" font-family="Arial, sans-serif" font-size="36" font-weight="700">$24.8M</text>
+  <text x="316" y="194" fill="#8FB7E8" font-family="Arial, sans-serif" font-size="18">OTs/mes</text>
+  <text x="316" y="238" fill="#F5FAFF" font-family="Arial, sans-serif" font-size="36" font-weight="700">+320</text>
+  <text x="490" y="194" fill="#8FB7E8" font-family="Arial, sans-serif" font-size="18">NPS</text>
+  <text x="490" y="238" fill="#F5FAFF" font-family="Arial, sans-serif" font-size="36" font-weight="700">94</text>
+  <rect x="118" y="294" width="484" height="140" rx="24" fill="#143A61"/>
+  <path d="M152 390L212 344L274 360L344 300L404 326L472 264L568 296" stroke="#35D0A4" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="212" cy="344" r="9" fill="#FFB648"/>
+  <circle cx="344" cy="300" r="9" fill="#FFB648"/>
+  <circle cx="472" cy="264" r="9" fill="#FFB648"/>
+  <path d="M152 410H578" stroke="#2A4C72" stroke-width="4"/>
+</svg>

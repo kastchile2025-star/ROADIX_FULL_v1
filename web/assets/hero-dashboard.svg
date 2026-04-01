@@ -1,0 +1,56 @@
+<svg width="920" height="760" viewBox="0 0 920 760" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="80" y1="40" x2="760" y2="700" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#12355B"/>
+      <stop offset="1" stop-color="#071728"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="648" y1="86" x2="796" y2="250" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFCA6C"/>
+      <stop offset="1" stop-color="#FF9E2C"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="122" y1="106" x2="634" y2="598" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#173D66"/>
+      <stop offset="1" stop-color="#0A2239"/>
+    </linearGradient>
+  </defs>
+  <rect width="920" height="760" rx="40" fill="url(#bg)"/>
+  <circle cx="746" cy="146" r="92" fill="url(#accent)" fill-opacity="0.95"/>
+  <circle cx="138" cy="138" r="72" fill="#1C6FFF" fill-opacity="0.22"/>
+  <rect x="84" y="92" width="752" height="576" rx="28" fill="#091B2E" stroke="#2D5C90" stroke-width="2"/>
+  <rect x="114" y="124" width="692" height="70" rx="18" fill="#102A45"/>
+  <circle cx="152" cy="159" r="10" fill="#FF5D5D"/>
+  <circle cx="182" cy="159" r="10" fill="#FFB648"/>
+  <circle cx="212" cy="159" r="10" fill="#35D0A4"/>
+  <rect x="262" y="143" width="164" height="32" rx="16" fill="#19436F"/>
+  <rect x="538" y="143" width="94" height="32" rx="16" fill="#19436F"/>
+  <rect x="648" y="143" width="128" height="32" rx="16" fill="#19436F"/>
+  <rect x="118" y="220" width="228" height="164" rx="24" fill="url(#panel)" stroke="#2E5F95"/>
+  <rect x="378" y="220" width="428" height="164" rx="24" fill="url(#panel)" stroke="#2E5F95"/>
+  <rect x="118" y="412" width="328" height="224" rx="24" fill="url(#panel)" stroke="#2E5F95"/>
+  <rect x="474" y="412" width="332" height="224" rx="24" fill="url(#panel)" stroke="#2E5F95"/>
+  <text x="150" y="270" fill="#8FB7E8" font-family="Arial, sans-serif" font-size="22" font-weight="700">OTs activas</text>
+  <text x="150" y="334" fill="#F5FAFF" font-family="Arial, sans-serif" font-size="66" font-weight="700">120</text>
+  <path d="M150 354H278" stroke="#35D0A4" stroke-width="10" stroke-linecap="round"/>
+  <text x="410" y="270" fill="#8FB7E8" font-family="Arial, sans-serif" font-size="22" font-weight="700">Flujo operativo</text>
+  <rect x="410" y="302" width="92" height="44" rx="22" fill="#1C6FFF"/>
+  <rect x="520" y="302" width="108" height="44" rx="22" fill="#174B7A"/>
+  <rect x="646" y="302" width="116" height="44" rx="22" fill="#174B7A"/>
+  <text x="432" y="330" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="20" font-weight="700">Ingreso</text>
+  <text x="542" y="330" fill="#D5E5FF" font-family="Arial, sans-serif" font-size="20" font-weight="700">Diagnóstico</text>
+  <text x="678" y="330" fill="#D5E5FF" font-family="Arial, sans-serif" font-size="20" font-weight="700">Entrega</text>
+  <text x="148" y="464" fill="#8FB7E8" font-family="Arial, sans-serif" font-size="22" font-weight="700">Ingresos por servicio</text>
+  <rect x="150" y="520" width="34" height="72" rx="12" fill="#1C6FFF"/>
+  <rect x="202" y="486" width="34" height="106" rx="12" fill="#35D0A4"/>
+  <rect x="254" y="450" width="34" height="142" rx="12" fill="#FFB648"/>
+  <rect x="306" y="470" width="34" height="122" rx="12" fill="#79AFFF"/>
+  <rect x="358" y="430" width="34" height="162" rx="12" fill="#4D88FF"/>
+  <path d="M150 604H394" stroke="#284F77" stroke-width="4"/>
+  <text x="504" y="464" fill="#8FB7E8" font-family="Arial, sans-serif" font-size="22" font-weight="700">Portal cliente</text>
+  <rect x="528" y="492" width="112" height="112" rx="28" fill="#0E2F4E" stroke="#2E5F95"/>
+  <circle cx="584" cy="534" r="22" fill="#1C6FFF"/>
+  <rect x="550" y="566" width="68" height="12" rx="6" fill="#D2E5FF"/>
+  <rect x="664" y="492" width="108" height="28" rx="14" fill="#1B77FF"/>
+  <rect x="664" y="538" width="94" height="20" rx="10" fill="#1B456D"/>
+  <rect x="664" y="572" width="122" height="20" rx="10" fill="#1B456D"/>
+  <path d="M704 106L732 134L784 82" stroke="#0A2239" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

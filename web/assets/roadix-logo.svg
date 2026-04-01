@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img">
+  <rect width="64" height="64" rx="14" fill="#0e2a47"/>
+  <!-- Gear outer -->
+  <g transform="translate(34,28)">
+    <circle r="11" fill="none" stroke="#5bc0eb" stroke-width="2"/>
+    <circle r="5.5" fill="#0e2a47" stroke="#5bc0eb" stroke-width="1.5"/>
+    <!-- Teeth -->
+    <rect x="-1.5" y="-14" width="3" height="4" rx="1" fill="#5bc0eb"/>
+    <rect x="-1.5" y="10" width="3" height="4" rx="1" fill="#5bc0eb"/>
+    <rect x="-14" y="-1.5" width="4" height="3" rx="1" fill="#5bc0eb"/>
+    <rect x="10" y="-1.5" width="4" height="3" rx="1" fill="#5bc0eb"/>
+    <rect x="6.5" y="-9.8" width="3" height="4" rx="1" fill="#5bc0eb" transform="rotate(45 8 -7.8)"/>
+    <rect x="-9.5" y="5.8" width="3" height="4" rx="1" fill="#5bc0eb" transform="rotate(45 -8 7.8)"/>
+    <rect x="-9.5" y="-9.8" width="3" height="4" rx="1" fill="#5bc0eb" transform="rotate(-45 -8 -7.8)"/>
+    <rect x="6.5" y="5.8" width="3" height="4" rx="1" fill="#5bc0eb" transform="rotate(-45 8 7.8)"/>
+  </g>
+  <!-- Road / curved path -->
+  <path d="M10 52 C16 40 22 30 28 24 Q32 20 36 24" fill="none" stroke="#5bc0eb" stroke-width="3.5" stroke-linecap="round" opacity="0.85"/>
+  <!-- Road center line -->
+  <path d="M14 50 C18 42 23 34 27 28" fill="none" stroke="#5bc0eb" stroke-width="1" stroke-linecap="round" stroke-dasharray="2.5 2.5" opacity="0.5"/>
+  <!-- Main arrow -->
+  <path d="M36 24 L43 12" stroke="#1a8fd1" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <polygon points="43,7 48,15 38,15" fill="#1a8fd1"/>
+  <!-- Secondary arrow -->
+  <path d="M46 20 L50 13" stroke="#5bc0eb" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.65"/>
+  <polygon points="50,9 53.5,15.5 46.5,15.5" fill="#5bc0eb" opacity="0.65"/>
+</svg>

@@ -1,0 +1,22 @@
+<svg width="720" height="540" viewBox="0 0 720 540" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="720" height="540" rx="32" fill="#0C2036"/>
+  <circle cx="588" cy="112" r="72" fill="#FFB648" fill-opacity="0.95"/>
+  <rect x="84" y="74" width="552" height="392" rx="28" fill="#102A45" stroke="#2D5C90" stroke-width="2"/>
+  <rect x="112" y="108" width="496" height="54" rx="16" fill="#173D66"/>
+  <rect x="132" y="124" width="114" height="22" rx="11" fill="#D5E8FF" fill-opacity="0.9"/>
+  <rect x="458" y="124" width="126" height="22" rx="11" fill="#1B77FF"/>
+  <rect x="116" y="192" width="168" height="238" rx="24" fill="#0E2F4E"/>
+  <circle cx="200" cy="252" r="46" fill="#1B77FF"/>
+  <path d="M199 214C214 214 226 226 226 241C226 256 214 268 199 268C184 268 172 256 172 241C172 226 184 214 199 214Z" fill="#DCEBFF"/>
+  <path d="M152 330C152 300.729 175.729 277 205 277C234.271 277 258 300.729 258 330V346H152V330Z" fill="#DCEBFF"/>
+  <rect x="312" y="192" width="272" height="74" rx="20" fill="#143A61"/>
+  <rect x="332" y="214" width="96" height="14" rx="7" fill="#D5E8FF"/>
+  <rect x="332" y="238" width="168" height="12" rx="6" fill="#7FAEE9"/>
+  <rect x="516" y="214" width="48" height="30" rx="15" fill="#35D0A4"/>
+  <rect x="312" y="284" width="272" height="60" rx="20" fill="#143A61"/>
+  <rect x="332" y="306" width="116" height="12" rx="6" fill="#D5E8FF"/>
+  <rect x="470" y="298" width="94" height="28" rx="14" fill="#FFB648"/>
+  <rect x="312" y="362" width="272" height="50" rx="20" fill="#143A61"/>
+  <rect x="332" y="381" width="176" height="12" rx="6" fill="#D5E8FF"/>
+  <text x="118" y="454" fill="#8FB7E8" font-family="Arial, sans-serif" font-size="18">Portal cliente, avance, historial y comunicación profesional.</text>
+</svg>

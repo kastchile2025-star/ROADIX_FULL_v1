@@ -1,0 +1,342 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ROADIX | Dashboard Login</title>
+    <meta name="description" content="Accede al dashboard de ROADIX para gestionar tu taller automotriz." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+    <style>
+      .login-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        min-height: 100vh;
+        min-height: 100dvh;
+      }
+
+      .login-panel-left {
+        background: linear-gradient(160deg, #0b1b2f 0%, #0e2a47 50%, #112d4e 100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 48px 40px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .login-panel-left::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at 20% 30%, rgba(27, 119, 255, 0.08) 0%, transparent 60%);
+        pointer-events: none;
+      }
+
+      .login-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .login-logo-svg {
+        height: 48px;
+        width: auto;
+        color: #f2f7ff;
+      }
+
+      .login-brand strong {
+        display: none;
+      }
+
+      .login-tagline {
+        margin-top: 12px;
+        font-size: 0.92rem;
+        color: rgba(242, 247, 255, 0.55);
+        line-height: 1.5;
+        max-width: 320px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .login-features {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 14px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .login-features li {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: rgba(242, 247, 255, 0.7);
+        font-size: 0.88rem;
+      }
+
+      .login-features li::before {
+        content: '';
+        flex-shrink: 0;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--accent, #ffb648);
+        box-shadow: 0 0 0 4px rgba(255, 182, 72, 0.15);
+      }
+
+      .login-footer {
+        font-size: 0.75rem;
+        color: rgba(242, 247, 255, 0.3);
+        position: relative;
+        z-index: 1;
+      }
+
+      .login-panel-right {
+        background: #111827;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 48px 40px;
+        position: relative;
+      }
+
+      .login-topbar-actions {
+        position: absolute;
+        top: 20px;
+        right: 24px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        z-index: 2;
+      }
+
+      .login-card {
+        width: 100%;
+        max-width: 380px;
+      }
+
+      .login-card h2 {
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #f2f7ff;
+        margin-bottom: 4px;
+      }
+
+      .login-card .login-subtitle {
+        font-size: 0.88rem;
+        color: rgba(242, 247, 255, 0.5);
+        margin-bottom: 28px;
+      }
+
+      .login-field {
+        display: grid;
+        gap: 6px;
+        margin-bottom: 18px;
+      }
+
+      .login-field label {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: rgba(242, 247, 255, 0.7);
+      }
+
+      .login-field input {
+        width: 100%;
+        padding: 12px 16px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.04);
+        color: #f2f7ff;
+        font: inherit;
+        font-size: 0.95rem;
+        outline: none;
+        transition: border-color 180ms ease, box-shadow 180ms ease;
+        box-sizing: border-box;
+      }
+
+      .login-field input:focus {
+        border-color: rgba(97, 168, 255, 0.5);
+        box-shadow: 0 0 0 3px rgba(97, 168, 255, 0.12);
+      }
+
+      .login-submit {
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #4f6ef7, #6c47ff);
+        color: #fff;
+        font: inherit;
+        font-size: 0.95rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: opacity 180ms ease, transform 120ms ease;
+        margin-top: 6px;
+      }
+
+      .login-submit:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+      }
+
+      .login-links {
+        margin-top: 22px;
+        text-align: center;
+        font-size: 0.84rem;
+        color: rgba(242, 247, 255, 0.5);
+      }
+
+      .login-links a {
+        color: #89b4ff;
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .login-links a:hover {
+        text-decoration: underline;
+      }
+
+      .login-forgot {
+        display: block;
+        margin-top: 10px;
+        color: rgba(242, 247, 255, 0.4);
+        font-size: 0.82rem;
+        text-align: center;
+      }
+
+      @media (max-width: 768px) {
+        .login-wrapper {
+          grid-template-columns: 1fr;
+        }
+        .login-panel-left {
+          padding: 32px 24px;
+          gap: 24px;
+        }
+        .login-panel-right {
+          padding: 32px 24px;
+        }
+      }
+
+      /* Light theme overrides */
+      body[data-theme='light'] .login-panel-left {
+        background: linear-gradient(160deg, #e8eef6 0%, #dce6f2 50%, #d4dfee 100%);
+      }
+      body[data-theme='light'] .login-panel-left::before {
+        background: radial-gradient(ellipse at 20% 30%, rgba(27, 119, 255, 0.05) 0%, transparent 60%);
+      }
+      body[data-theme='light'] .login-brand strong {
+        color: #0e2a47;
+      }
+      body[data-theme='light'] .login-logo-svg {
+        color: #0e2a47;
+      }
+      body[data-theme='light'] .login-tagline {
+        color: rgba(14, 42, 71, 0.6);
+      }
+      body[data-theme='light'] .login-features li {
+        color: rgba(14, 42, 71, 0.7);
+      }
+      body[data-theme='light'] .login-footer {
+        color: rgba(14, 42, 71, 0.35);
+      }
+      body[data-theme='light'] .login-panel-right {
+        background: #f5f7fa;
+      }
+      body[data-theme='light'] .login-card h2 {
+        color: #0e2a47;
+      }
+      body[data-theme='light'] .login-card .login-subtitle {
+        color: rgba(14, 42, 71, 0.55);
+      }
+      body[data-theme='light'] .login-field label {
+        color: rgba(14, 42, 71, 0.7);
+      }
+      body[data-theme='light'] .login-field input {
+        border: 1px solid rgba(14, 42, 71, 0.15);
+        background: rgba(14, 42, 71, 0.04);
+        color: #0e2a47;
+      }
+      body[data-theme='light'] .login-field input:focus {
+        border-color: rgba(79, 110, 247, 0.5);
+        box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.12);
+      }
+      body[data-theme='light'] .login-links {
+        color: rgba(14, 42, 71, 0.55);
+      }
+      body[data-theme='light'] .login-links a {
+        color: #4f6ef7;
+      }
+      body[data-theme='light'] .login-forgot {
+        color: rgba(14, 42, 71, 0.4);
+      }
+    </style>
+  </head>
+  <body data-theme="dark" data-page="login">
+    <div class="login-wrapper">
+      <div class="login-panel-left">
+        <div>
+          <a href="./index.html" class="login-brand" style="text-decoration:none;">
+            <svg class="brand-logo login-logo-svg" viewBox="0 0 280 44" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="1" y="2" width="40" height="40" rx="11" fill="rgba(43,190,249,0.08)" stroke="#2bbef9" stroke-width="1.5"/><path d="M11 30 A12 12 0 1 1 31 30" fill="none" stroke="#2bbef9" stroke-width="2.2" stroke-linecap="round"/><line x1="21" y1="27" x2="28" y2="16" stroke="#ffb648" stroke-width="2.2" stroke-linecap="round"/><circle cx="21" cy="27" r="2.2" fill="#ffb648"/><line x1="11" y1="33" x2="31" y2="33" stroke="#2bbef9" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/><text x="50" y="23" font-family="'Rajdhani',sans-serif" font-weight="700" font-size="24" fill="currentColor" letter-spacing="1.5">ROADIX</text><text x="50" y="38" font-family="'Manrope',sans-serif" font-weight="600" font-size="7.5" fill="#ffb648" letter-spacing="1.2" data-i18n="brand.subtitle">GESTIÃ“N DE TALLERES EN LA NUBE</text></svg>
+          </a>
+          <p class="login-tagline" data-i18n="login.tagline">La plataforma SaaS para talleres automotrices modernos.</p>
+        </div>
+
+        <ul class="login-features">
+          <li data-i18n="login.feature1">GestiÃ³n completa de Ã³rdenes de trabajo</li>
+          <li data-i18n="login.feature2">Kanban para seguimiento en tiempo real</li>
+          <li data-i18n="login.feature3">Control de inventario y repuestos</li>
+          <li data-i18n="login.feature4">Portal de cliente y facturaciÃ³n integrada</li>
+        </ul>
+
+        <p class="login-footer">&copy; 2025 ROADIX &middot; QCore Spa v1.01</p>
+      </div>
+
+      <div class="login-panel-right">
+        <div class="login-topbar-actions">
+          <button class="lang-toggle" type="button" data-lang-toggle aria-label="Toggle language">ES</button>
+          <button class="theme-toggle" type="button" aria-label="Cambiar tema">
+            <span class="theme-toggle-icon">â—</span>
+          </button>
+        </div>
+        <div class="login-card">
+          <h2 data-i18n="login.welcome">Bienvenido de nuevo</h2>
+          <p class="login-subtitle" data-i18n="login.subtitle">Smart management for your workshop</p>
+
+          <form id="login-form" autocomplete="off">
+            <div class="login-field">
+              <label for="login-user" data-i18n="login.userLabel">Username</label>
+              <input type="text" id="login-user" name="username" placeholder="admin" autocomplete="username" required />
+            </div>
+            <div class="login-field">
+              <label for="login-pass" data-i18n="login.passLabel">Password</label>
+              <input type="password" id="login-pass" name="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" autocomplete="current-password" required />
+            </div>
+            <button type="submit" class="login-submit" data-i18n="login.signIn">Sign In</button>
+          </form>
+          <script>
+            document.getElementById('login-form').addEventListener('submit', function(e) {
+              e.preventDefault();
+              window.location.href = 'https://www.roadix.cl/app';
+            });
+          </script>
+
+          <div class="login-links">
+            <span data-i18n="login.noAccount">Don't have an account?</span>
+            <a href="./demo.html" data-i18n="login.createAccount">Create free account</a>
+          </div>
+          <span class="login-forgot" data-i18n="login.forgot">Forgot your password?</span>
+        </div>
+      </div>
+    </div>
+    <script src="./script.js"></script>
+  </body>
+</html>
+
