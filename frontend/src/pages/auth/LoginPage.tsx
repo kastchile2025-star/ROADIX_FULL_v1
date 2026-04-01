@@ -60,10 +60,10 @@ export default function LoginPage() {
       {/* ── Left brand panel ────────────────────────────── */}
       <div className="hidden lg:flex lg:w-[45%] flex-col justify-between bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 p-12 select-none">
         <div>
-          <div className="flex items-center gap-3">
+          <a href="https://www.roadix.cl" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <RoadixLogo size={44} />
             <span className="text-2xl font-bold text-white tracking-tight">Roadix</span>
-          </div>
+          </a>
           <p className="mt-5 text-blue-200 text-lg font-light leading-relaxed max-w-xs">
             La plataforma SaaS para talleres<br />automotrices modernos.
           </p>
@@ -85,10 +85,10 @@ export default function LoginPage() {
       <div className="flex flex-1 items-center justify-center bg-white dark:bg-slate-900 px-6 py-12">
         <div className="w-full max-w-sm">
           {/* Mobile-only logo */}
-          <div className="lg:hidden mb-8 flex flex-col items-center">
+          <a href="https://www.roadix.cl" className="lg:hidden mb-8 flex flex-col items-center hover:opacity-80 transition-opacity">
             <RoadixLogo size={52} />
             <h1 className="mt-3 text-2xl font-bold text-gray-900 dark:text-white">Roadix</h1>
-          </div>
+          </a>
 
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Bienvenido de nuevo</h2>
