@@ -3,12 +3,13 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Link, useNavigate } from 'react-router-dom';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, Globe, Moon, Sun } from 'lucide-react';
 import { Button, Input } from '../../components/ui';
 import { RoadixLogo } from '../../components/ui/RoadixLogo';
 import { authService } from '../../services/auth.service';
 import { useAuthStore } from '../../store/auth.store';
 import { useI18n } from '../../context/I18nContext';
+import { useTheme } from '../../context/ThemeContext';
 
 const schema = z.object({
   email: z.string().min(1, 'Usuario requerido'),
@@ -17,19 +18,20 @@ const schema = z.object({
 
 type Form = z.infer<typeof schema>;
 
-const features = [
-  'Gestión completa de órdenes de trabajo',
-  'Kanban para seguimiento en tiempo real',
-  'Control de inventario y repuestos',
-  'Portal de cliente y facturación integrada',
-];
-
 export default function LoginPage() {
-  const { t } = useI18n();
+  const { t, lang, toggleLang } = useI18n();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const setAuth = useAuthStore((s) => s.setAuth);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const features = [
+    t('login.feature1'),
+    t('login.feature2'),
+    t('login.feature3'),
+    t('login.feature4'),
+  ];
 
   const {
     register,
@@ -56,16 +58,34 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen">
+    <div className="relative flex min-h-screen">
+      <div className="absolute right-4 top-4 z-10 flex items-center gap-2">
+        <button
+          onClick={toggleLang}
+          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold tracking-wider text-gray-500 hover:bg-gray-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors"
+          title={lang === 'es' ? t('login.switchToEnglish') : t('login.switchToSpanish')}
+        >
+          <Globe size={14} />
+          {lang.toUpperCase()}
+        </button>
+        <button
+          onClick={toggleTheme}
+          className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors"
+          title={theme === 'light' ? t('login.themeDark') : t('login.themeLight')}
+        >
+          {theme === 'light' ? <Moon size={17} /> : <Sun size={17} />}
+        </button>
+      </div>
+
       {/* ── Left brand panel ────────────────────────────── */}
       <div className="hidden lg:flex lg:w-[45%] flex-col justify-between bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 p-12 select-none">
         <div>
-          <a href="https://www.roadix.cl" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+          <a href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <RoadixLogo size={44} />
             <span className="text-2xl font-bold text-white tracking-tight">Roadix</span>
           </a>
           <p className="mt-5 text-blue-200 text-lg font-light leading-relaxed max-w-xs">
-            La plataforma SaaS para talleres<br />automotrices modernos.
+            {t('login.taglineLine1')}<br />{t('login.taglineLine2')}
           </p>
         </div>
 
@@ -85,13 +105,13 @@ export default function LoginPage() {
       <div className="flex flex-1 items-center justify-center bg-white dark:bg-slate-900 px-6 py-12">
         <div className="w-full max-w-sm">
           {/* Mobile-only logo */}
-          <a href="https://www.roadix.cl" className="lg:hidden mb-8 flex flex-col items-center hover:opacity-80 transition-opacity">
+          <a href="/" className="lg:hidden mb-8 flex flex-col items-center hover:opacity-80 transition-opacity">
             <RoadixLogo size={52} />
             <h1 className="mt-3 text-2xl font-bold text-gray-900 dark:text-white">Roadix</h1>
           </a>
 
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Bienvenido de nuevo</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('login.welcome')}</h2>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t('login.subtitle')}</p>
           </div>
 

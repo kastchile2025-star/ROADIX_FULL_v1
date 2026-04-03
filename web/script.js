@@ -558,6 +558,90 @@ const billingPeriodButtons = Array.from(document.querySelectorAll('[data-billing
 const pricingCards = Array.from(document.querySelectorAll('[data-price-card]'));
 const metaDescription = document.querySelector('meta[name="description"]');
 const pageKey = document.body.dataset.page;
+
+const pageMeta = {
+  home: {
+    title: {
+      es: 'ROADIX | Inicio',
+      en: 'ROADIX | Home',
+    },
+    description: {
+      es: 'ROADIX es la plataforma SaaS de QCore Spa para talleres automotrices. Controla operación, clientes, vehículos, inventario, caja y reportes en un solo sistema profesional.',
+      en: 'ROADIX is QCore Spa\'s SaaS platform for automotive workshops. Control operations, customers, vehicles, inventory, cash management and reporting in one professional system.',
+    },
+  },
+  identity: {
+    title: {
+      es: 'ROADIX | Identidad',
+      en: 'ROADIX | Identity',
+    },
+    description: {
+      es: 'Misión, visión, valores y propuesta de valor de ROADIX, la solución de QCore Spa para talleres automotrices.',
+      en: 'Mission, vision, values and value proposition of ROADIX, QCore Spa\'s solution for automotive workshops.',
+    },
+  },
+  modules: {
+    title: {
+      es: 'ROADIX | Módulos y Visuales',
+      en: 'ROADIX | Modules & Visuals',
+    },
+    description: {
+      es: 'Conoce los módulos de ROADIX: órdenes de trabajo, clientes, inventario, caja, facturación, portal cliente y reportes.',
+      en: 'Explore ROADIX modules: work orders, customers, inventory, cash, billing, customer portal and reporting.',
+    },
+  },
+  benefits: {
+    title: {
+      es: 'ROADIX | Planes y Suscripción',
+      en: 'ROADIX | Plans & Subscription',
+    },
+    description: {
+      es: 'Planes y suscripción de ROADIX: Free, Starter, Pro y Enterprise con límites, funcionalidades y enfoque comercial para talleres automotrices.',
+      en: 'ROADIX plans and subscription: Free, Starter, Pro and Enterprise with limits, features and a commercial focus for automotive workshops.',
+    },
+  },
+  gallery: {
+    title: {
+      es: 'ROADIX | Galería',
+      en: 'ROADIX | Gallery',
+    },
+    description: {
+      es: 'Galería visual de ROADIX con imágenes distintivas del flujo operativo, portal cliente y analítica gerencial.',
+      en: 'ROADIX visual gallery featuring distinctive imagery for workflow, customer portal and management analytics.',
+    },
+  },
+  qcore: {
+    title: {
+      es: 'ROADIX | QCore Spa',
+      en: 'ROADIX | QCore Spa',
+    },
+    description: {
+      es: 'Contexto corporativo de ROADIX como producto de QCore Spa, orientado a presentaciones comerciales y posicionamiento institucional.',
+      en: 'Corporate context for ROADIX as a QCore Spa product, oriented to commercial presentations and institutional positioning.',
+    },
+  },
+  demo: {
+    title: {
+      es: 'ROADIX | Solicitar Demo',
+      en: 'ROADIX | Request a Demo',
+    },
+    description: {
+      es: 'Solicita una demo comercial de ROADIX y conoce cómo digitalizar la operación completa de tu taller automotriz.',
+      en: 'Request a ROADIX commercial demo and see how to digitize your automotive workshop end-to-end.',
+    },
+  },
+  login: {
+    title: {
+      es: 'ROADIX | Acceso al Dashboard',
+      en: 'ROADIX | Dashboard Login',
+    },
+    description: {
+      es: 'Accede al dashboard ROADIX para gestionar órdenes de trabajo, clientes, inventario y facturación.',
+      en: 'Access the ROADIX dashboard to manage work orders, customers, inventory and billing.',
+    },
+  },
+};
+
 let currentLang = localStorage.getItem(storageKeys.lang) || 'es';
 let currentTheme = localStorage.getItem(storageKeys.theme) || 'dark';
 let currentBillingPeriod = localStorage.getItem('ROADIX-landing-billing-period') || 'monthly';
@@ -612,6 +696,17 @@ function renderBillingPeriod() {
   });
 }
 
+function applyPageMeta(lang) {
+  if (!pageKey || !pageMeta[pageKey]) return;
+  const meta = pageMeta[pageKey];
+  if (meta.title) {
+    document.title = meta.title[lang] || meta.title.es;
+  }
+  if (metaDescription && meta.description) {
+    metaDescription.setAttribute('content', meta.description[lang] || meta.description.es);
+  }
+}
+
 function setTheme(theme) {
   currentTheme = theme;
   document.body.setAttribute('data-theme', theme);
@@ -651,6 +746,7 @@ function setLanguage(lang) {
   }
   localStorage.setItem(storageKeys.lang, lang);
   setTheme(currentTheme);
+  applyPageMeta(lang);
   renderBillingPeriod();
 }
 
@@ -728,38 +824,6 @@ const observer = new IntersectionObserver((entries) => {
 document.querySelectorAll('.reveal').forEach((element) => observer.observe(element));
 
 sanitizeNavbarUi();
-
-if (metaDescription) {
-  const descriptions = {
-    home: {
-      es: 'ROADIX es la plataforma SaaS de QCore Spa para talleres automotrices. Controla operación, clientes, vehículos, inventario, caja y reportes en un solo sistema profesional.',
-      en: 'ROADIX is QCore Spa\'s SaaS platform for automotive workshops. Control operations, customers, vehicles, inventory, cash management and reporting in one professional system.',
-    },
-    identity: {
-      es: 'Misión, visión, valores y propuesta de valor de ROADIX, la solución de QCore Spa para talleres automotrices.',
-      en: 'Mission, vision, values and value proposition of ROADIX, QCore Spa\'s solution for automotive workshops.',
-    },
-    modules: {
-      es: 'Conoce los módulos de ROADIX: órdenes de trabajo, clientes, inventario, caja, facturación, portal cliente y reportes.',
-      en: 'Explore ROADIX modules: work orders, customers, inventory, cash, billing, customer portal and reporting.',
-    },
-    benefits: {
-      es: 'Planes y suscripción de ROADIX: Free, Starter, Pro y Enterprise con límites, funcionalidades y enfoque comercial para talleres automotrices.',
-      en: 'ROADIX plans and subscription: Free, Starter, Pro and Enterprise with limits, features and a commercial focus for automotive workshops.',
-    },
-    gallery: {
-      es: 'Galería visual de ROADIX con imágenes distintivas del flujo operativo, portal cliente y analítica gerencial.',
-      en: 'ROADIX visual gallery featuring distinctive imagery for workflow, customer portal and management analytics.',
-    },
-    qcore: {
-      es: 'Contexto corporativo de ROADIX como producto de QCore Spa, orientado a presentaciones comerciales y posicionamiento institucional.',
-      en: 'Corporate context for ROADIX as a QCore Spa product, oriented to commercial presentations and institutional positioning.',
-    },
-  };
-  if (descriptions[pageKey]) {
-    metaDescription.setAttribute('content', descriptions[pageKey][currentLang] || descriptions[pageKey].es);
-  }
-}
 
 setLanguage(currentLang);
 setTheme(currentTheme);

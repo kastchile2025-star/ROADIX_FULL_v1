@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 import { es } from '../i18n/es';
 import { en } from '../i18n/en';
 
@@ -18,16 +18,26 @@ const I18nContext = createContext<I18nCtx>({
   t: (key) => key,
 });
 
+const APP_LANG_KEY = 'roadix-lang';
+const LANDING_LANG_KEY = 'ROADIX-landing-lang';
+
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [lang, setLang] = useState<Lang>(() => {
-    const saved = localStorage.getItem('roadix-lang');
+    const appSaved = localStorage.getItem(APP_LANG_KEY);
+    const landingSaved = localStorage.getItem(LANDING_LANG_KEY);
+    const saved = appSaved || landingSaved;
     return saved === 'en' ? 'en' : 'es';
   });
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
 
   const toggleLang = () =>
     setLang((prev) => {
       const next = prev === 'es' ? 'en' : 'es';
-      localStorage.setItem('roadix-lang', next);
+      localStorage.setItem(APP_LANG_KEY, next);
+      localStorage.setItem(LANDING_LANG_KEY, next);
       return next;
     });
 
