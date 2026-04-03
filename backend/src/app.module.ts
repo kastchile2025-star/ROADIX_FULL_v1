@@ -50,6 +50,7 @@ const __dirname = dirname(__filename);
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
         synchronize: true,
+        dropSchema: true,
         ssl: config.get<string>('NODE_ENV') === 'production' ? { rejectUnauthorized: false } : false,
       }),
     }),
