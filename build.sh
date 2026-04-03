@@ -3,7 +3,7 @@ set -e
 
 # Build React frontend
 cd frontend
-npm install --include=dev
+# npm install is handled by Vercel installCommand
 npm run build
 cd ..
 

@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "installCommand": "cd frontend && npm install --include=dev",
   "buildCommand": "bash build.sh",
   "outputDirectory": "dist",
   "rewrites": [
