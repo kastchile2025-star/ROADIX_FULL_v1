@@ -34,12 +34,12 @@ export async function seedPlanes(dataSource: DataSource) {
     },
     {
       nombre: 'starter',
-      precio_mensual: 29990,
-      precio_anual: 305898,
-      max_usuarios: 5,
-      max_ots_mes: 200,
-      max_vehiculos: 500,
-      max_storage_mb: 5000,
+      precio_mensual: 25990,
+      precio_anual: 280692,
+      max_usuarios: 3,
+      max_ots_mes: 100,
+      max_vehiculos: 200,
+      max_storage_mb: 2048,
       tiene_facturacion: true,
       tiene_whatsapp: false,
       tiene_portal: true,
@@ -49,7 +49,7 @@ export async function seedPlanes(dataSource: DataSource) {
     {
       nombre: 'pro',
       precio_mensual: 59990,
-      precio_anual: 611898,
+      precio_anual: 647892,
       max_usuarios: 15,
       max_ots_mes: 999999,
       max_vehiculos: 999999,
@@ -78,7 +78,9 @@ export async function seedPlanes(dataSource: DataSource) {
 
   for (const plan of planes) {
     const existe = await repo.findOneBy({ nombre: plan.nombre });
-    if (!existe) {
+    if (existe) {
+      await repo.save(repo.create({ id: existe.id, ...plan }));
+    } else {
       await repo.save(repo.create(plan));
     }
   }
