@@ -6,7 +6,7 @@ import helmet from 'helmet';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.use(helmet());
+  app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
   app.setGlobalPrefix('api');
 
   app.useGlobalPipes(
@@ -17,10 +17,21 @@ async function bootstrap() {
     }),
   );
 
+  const allowedOrigins = (
+    process.env.CORS_ORIGINS ??
+    process.env.APP_URL ??
+    'http://localhost:5173'
+  )
+    .split(',')
+    .map((o) => o.trim());
+
+  // Always allow the main domain variants
+  for (const domain of ['https://roadix.cl', 'https://www.roadix.cl']) {
+    if (!allowedOrigins.includes(domain)) allowedOrigins.push(domain);
+  }
+
   app.enableCors({
-    origin: (process.env.CORS_ORIGINS ?? process.env.APP_URL ?? 'http://localhost:5173')
-      .split(',')
-      .map((o) => o.trim()),
+    origin: allowedOrigins,
     credentials: true,
   });
 
