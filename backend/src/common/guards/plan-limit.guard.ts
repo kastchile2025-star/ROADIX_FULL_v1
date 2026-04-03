@@ -40,7 +40,7 @@ export class PlanLimitGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
     const userRole: string = request.user?.rol;
-    if (userRole === UserRole.SUPERADMIN || userRole === UserRole.ADMIN_TALLER) {
+    if (userRole === UserRole.SUPERADMIN) {
       return true;
     }
 
