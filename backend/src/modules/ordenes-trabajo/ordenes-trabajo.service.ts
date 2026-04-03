@@ -81,40 +81,49 @@ export class OrdenesTrabajoService {
   }
 
   async create(tallerId: number, dto: CreateOrdenTrabajoDto) {
-    const numero_ot = await this.generateNumeroOt(tallerId);
-    const token_portal = randomUUID();
+    const maxRetries = 3;
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      const numero_ot = await this.generateNumeroOt(tallerId);
+      const token_portal = randomUUID();
 
-    const ot = this.otRepo.create({
-      taller_id: tallerId,
-      vehiculo_id: dto.vehiculo_id,
-      cliente_id: dto.cliente_id,
-      mecanico_id: dto.mecanico_id,
-      tipo_servicio: dto.tipo_servicio,
-      km_ingreso: dto.km_ingreso,
-      combustible_ing: dto.combustible_ing,
-      diagnostico: dto.diagnostico,
-      observaciones: dto.observaciones,
-      fecha_prometida: dto.fecha_prometida ? new Date(dto.fecha_prometida) : undefined,
-      prioridad: dto.prioridad,
-      numero_ot,
-      token_portal,
-      estado: OtEstado.RECEPCION,
-    });
+      const ot = this.otRepo.create({
+        taller_id: tallerId,
+        vehiculo_id: dto.vehiculo_id,
+        cliente_id: dto.cliente_id,
+        mecanico_id: dto.mecanico_id,
+        tipo_servicio: dto.tipo_servicio,
+        km_ingreso: dto.km_ingreso,
+        combustible_ing: dto.combustible_ing,
+        diagnostico: dto.diagnostico,
+        observaciones: dto.observaciones,
+        fecha_prometida: dto.fecha_prometida ? new Date(dto.fecha_prometida) : undefined,
+        prioridad: dto.prioridad,
+        numero_ot,
+        token_portal,
+        estado: OtEstado.RECEPCION,
+      });
 
-    if (dto.firma_base64) {
-      ot.firma_cliente_url = this.archivosService.saveBase64(dto.firma_base64, 'firma');
+      if (dto.firma_base64) {
+        ot.firma_cliente_url = this.archivosService.saveBase64(dto.firma_base64, 'firma');
+      }
+
+      try {
+        const saved = await this.otRepo.save(ot);
+
+        if (dto.checklist?.length) {
+          const items = dto.checklist.map((c) =>
+            this.checklistRepo.create({ ot_id: saved.id, ...c }),
+          );
+          await this.checklistRepo.save(items);
+        }
+
+        return this.findOne(saved.id, tallerId);
+      } catch (err: any) {
+        const isDuplicate = err?.code === '23505' || err?.detail?.includes('numero_ot');
+        if (isDuplicate && attempt < maxRetries - 1) continue;
+        throw err;
+      }
     }
-
-    const saved = await this.otRepo.save(ot);
-
-    if (dto.checklist?.length) {
-      const items = dto.checklist.map((c) =>
-        this.checklistRepo.create({ ot_id: saved.id, ...c }),
-      );
-      await this.checklistRepo.save(items);
-    }
-
-    return this.findOne(saved.id, tallerId);
   }
 
   async update(id: number, tallerId: number, dto: UpdateOrdenTrabajoDto) {
@@ -242,6 +251,6 @@ export class OrdenesTrabajoService {
   private async generateNumeroOt(tallerId: number): Promise<string> {
     const count = await this.otRepo.count({ where: { taller_id: tallerId } });
     const num = (count + 1).toString().padStart(6, '0');
-    return `OT-${num}`;
+    return `OT-T${tallerId}-${num}`;
   }
 }
