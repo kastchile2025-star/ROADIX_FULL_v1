@@ -15,6 +15,9 @@ export class FlowService {
 
   private resolveAppUrl() {
     const configured = this.normalizeUrl(this.configService.get<string>('APP_URL'));
+    if (configured?.includes('app.roadix.cl')) {
+      return 'https://roadix.cl/app';
+    }
     const base = configured && configured.length > 0 ? configured : 'https://roadix.cl/app';
     return /\/app$/i.test(base) ? base : `${base}/app`;
   }

@@ -369,10 +369,20 @@ export class SuscripcionesService {
     }
 
     if (this.flowService.isConfigured()) {
-      return this.crearCheckoutCambioPlan(suscripcion, nuevoPlan, dto, monto, billingEmail);
+      return this.crearCheckoutCambioPlan(
+        suscripcion,
+        nuevoPlan,
+        dto,
+        monto,
+        dto.billing_email ?? billingEmail,
+      );
     }
 
-    const pagoExitoso = await this.procesarPagoGateway(monto, suscripcion, billingEmail);
+    const pagoExitoso = await this.procesarPagoGateway(
+      monto,
+      suscripcion,
+      dto.billing_email ?? billingEmail,
+    );
 
     if (!pagoExitoso.success) {
       await this.registrarPago(suscripcion, monto, PagoSuscripcionEstado.FALLIDO, pagoExitoso.referencia);

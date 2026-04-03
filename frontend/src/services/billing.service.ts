@@ -13,8 +13,8 @@ export const billingService = {
   getHistorialPagos: () =>
     api.get<PagoSuscripcion[]>('/suscripciones/historial-pagos').then((r) => r.data),
 
-  cambiarPlan: (plan_id: number, periodo: 'mensual' | 'anual') =>
-    api.post<Suscripcion | BillingPlanChangeResult>('/suscripciones/cambiar-plan', { plan_id, periodo }).then((r) => r.data),
+  cambiarPlan: (plan_id: number, periodo: 'mensual' | 'anual', billing_email?: string) =>
+    api.post<Suscripcion | BillingPlanChangeResult>('/suscripciones/cambiar-plan', { plan_id, periodo, billing_email }).then((r) => r.data),
 
   getFlowStatus: (token: string) =>
     api.get<FlowStatusResult>('/billing/flow/status', { params: { token } }).then((r) => r.data),

@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Card, Badge, Button } from '../../components/ui';
+import { Card, Badge, Button, Input } from '../../components/ui';
 import { useConfirm } from '../../components/ui';
 import { billingService } from '../../services/billing.service';
 import toast from 'react-hot-toast';
 import type { Plan, Suscripcion, PagoSuscripcion, BillingUsage, BillingPlanChangeResult } from '../../types';
 import { useI18n } from '../../context/I18nContext';
+import { useAuthStore } from '../../store/auth.store';
 import {
   CheckCircle,
   XCircle,
@@ -70,6 +71,7 @@ function UsageBar({ label, icon: Icon, usado, limite }: { label: string; icon: R
 export default function BillingPage() {
   const { t } = useI18n();
   const confirm = useConfirm();
+  const user = useAuthStore((state) => state.user);
   const [planes, setPlanes] = useState<Plan[]>([]);
   const [suscripcion, setSuscripcion] = useState<Suscripcion | null>(null);
   const [usage, setUsage] = useState<BillingUsage | null>(null);
@@ -77,6 +79,16 @@ export default function BillingPage() {
   const [periodo, setPeriodo] = useState<'mensual' | 'anual'>('mensual');
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [billingEmail, setBillingEmail] = useState(user?.email ?? '');
+
+  const isValidBillingEmail = (email?: string) => !!email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const usesDemoDomain = /@roadix\.cl$/i.test(user?.email ?? '');
+
+  useEffect(() => {
+    if (user?.email) {
+      setBillingEmail((current) => current || user.email);
+    }
+  }, [user?.email]);
 
   const getApiErrorMessage = (error: unknown, fallback: string) => {
     if (typeof error === 'object' && error !== null && 'response' in error) {
@@ -173,6 +185,12 @@ export default function BillingPage() {
     if (!plan) return;
 
     const monto = periodo === 'anual' ? plan.precio_anual : plan.precio_mensual;
+    const trimmedBillingEmail = billingEmail.trim();
+
+    if (monto > 0 && !isValidBillingEmail(trimmedBillingEmail)) {
+      toast.error(t('billing.paymentEmailInvalid'));
+      return;
+    }
 
     if (monto > 0 && !(await confirm({
       title: t('billing.confirmCambioTitle') ?? 'Cambio de plan',
@@ -183,7 +201,11 @@ export default function BillingPage() {
 
     setActionLoading(true);
     try {
-      const result = await billingService.cambiarPlan(planId, periodo);
+      const result = await billingService.cambiarPlan(
+        planId,
+        periodo,
+        monto > 0 ? trimmedBillingEmail : undefined,
+      );
 
       if ((result as BillingPlanChangeResult).requiresPayment) {
         const checkoutUrl = (result as BillingPlanChangeResult).checkoutUrl;
@@ -246,6 +268,21 @@ export default function BillingPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('billing.title')}</h1>
+
+      <Card title={t('billing.paymentEmailTitle')}>
+        <div className="space-y-3">
+          <Input
+            type="email"
+            label={t('billing.paymentEmailLabel')}
+            value={billingEmail}
+            onChange={(event) => setBillingEmail(event.target.value)}
+            placeholder="nombre@dominio.com"
+          />
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            {usesDemoDomain ? t('billing.paymentEmailHintDemo') : t('billing.paymentEmailHint')}
+          </p>
+        </div>
+      </Card>
 
       {/* ── Current subscription summary ── */}
       <div className="grid gap-6 lg:grid-cols-3">

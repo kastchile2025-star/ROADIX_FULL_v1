@@ -567,6 +567,11 @@ export const en: Record<string, string> = {
   'billing.toastErrorCambiar': 'Error changing plan',
   'billing.toastErrorCancelar': 'Error cancelling',
   'billing.toastErrorReactivar': 'Error reactivating',
+  'billing.paymentEmailTitle': 'Payment email',
+  'billing.paymentEmailLabel': 'Email used in Flow checkout',
+  'billing.paymentEmailHint': 'This email will be sent to Flow when creating the checkout.',
+  'billing.paymentEmailHintDemo': 'The demo account uses @roadix.cl and Flow rejects it. Enter a real email here to test the payment flow.',
+  'billing.paymentEmailInvalid': 'Enter a valid email to continue with Flow.',
   'billing.confirmCambiarPlan': 'Confirm switch to plan {plan} ({periodo})?\nAmount: {monto}',
   'billing.confirmCancelar': 'Are you sure you want to cancel your subscription?\nYour plan will remain active until the expiration date.',
 

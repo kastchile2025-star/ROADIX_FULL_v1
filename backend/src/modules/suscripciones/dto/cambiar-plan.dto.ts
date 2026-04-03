@@ -1,4 +1,4 @@
-import { IsInt, IsEnum } from 'class-validator';
+import { IsInt, IsEnum, IsEmail, IsOptional } from 'class-validator';
 import { SuscripcionPeriodo } from '../../../common/enums.js';
 
 export class CambiarPlanDto {
@@ -7,4 +7,8 @@ export class CambiarPlanDto {
 
   @IsEnum(SuscripcionPeriodo)
   periodo: SuscripcionPeriodo;
+
+  @IsEmail()
+  @IsOptional()
+  billing_email?: string;
 }
