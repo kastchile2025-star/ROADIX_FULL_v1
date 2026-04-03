@@ -1,35 +1,38 @@
-import { lazy, Suspense } from 'react';
+import { Suspense } from 'react';
+import type { ReactNode } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import { AppLayout } from '../components/layout/AppLayout';
 import { ProtectedRoute } from '../components/guards/ProtectedRoute';
+import RouteErrorPage from './RouteErrorPage';
+import { lazyWithRetry } from '../utils/chunkLoadRecovery';
 
 // Auth pages — small, keep eager for fast initial load
 import LoginPage from '../pages/auth/LoginPage';
 import RegisterPage from '../pages/auth/RegisterPage';
 
 // Lazy-loaded pages
-const ForgotPasswordPage = lazy(() => import('../pages/auth/ForgotPasswordPage'));
-const ResetPasswordPage = lazy(() => import('../pages/auth/ResetPasswordPage'));
-const ActivatePage = lazy(() => import('../pages/auth/ActivatePage'));
-const DashboardPage = lazy(() => import('../pages/dashboard/DashboardPage'));
-const ClientesPage = lazy(() => import('../pages/clientes/ClientesPage'));
-const VehiculosPage = lazy(() => import('../pages/vehiculos/VehiculosPage'));
-const UsuariosPage = lazy(() => import('../pages/usuarios/UsuariosPage'));
-const ConfiguracionPage = lazy(() => import('../pages/configuracion/ConfiguracionPage'));
-const OrdenesTrabajoPage = lazy(() => import('../pages/ordenes-trabajo/OrdenesTrabajoPage'));
-const NuevaOtPage = lazy(() => import('../pages/ordenes-trabajo/NuevaOtPage'));
-const OtDetallePage = lazy(() => import('../pages/ordenes-trabajo/OtDetallePage'));
-const KanbanPage = lazy(() => import('../pages/kanban/KanbanPage'));
-const MecanicosPage = lazy(() => import('../pages/mecanicos/MecanicosPage'));
-const InventarioPage = lazy(() => import('../pages/inventario/InventarioPage'));
-const ProveedoresPage = lazy(() => import('../pages/proveedores/ProveedoresPage'));
-const CajaPage = lazy(() => import('../pages/caja/CajaPage'));
-const FacturacionPage = lazy(() => import('../pages/facturacion/FacturacionPage'));
-const NotificacionesPage = lazy(() => import('../pages/notificaciones/NotificacionesPage'));
-const ReportesPage = lazy(() => import('../pages/reportes/ReportesPage'));
-const BillingPage = lazy(() => import('../pages/billing/BillingPage'));
-const BillingReturnPage = lazy(() => import('../pages/billing/BillingReturnPage'));
-const PortalPage = lazy(() => import('../pages/portal/PortalPage'));
+const ForgotPasswordPage = lazyWithRetry(() => import('../pages/auth/ForgotPasswordPage'));
+const ResetPasswordPage = lazyWithRetry(() => import('../pages/auth/ResetPasswordPage'));
+const ActivatePage = lazyWithRetry(() => import('../pages/auth/ActivatePage'));
+const DashboardPage = lazyWithRetry(() => import('../pages/dashboard/DashboardPage'));
+const ClientesPage = lazyWithRetry(() => import('../pages/clientes/ClientesPage'));
+const VehiculosPage = lazyWithRetry(() => import('../pages/vehiculos/VehiculosPage'));
+const UsuariosPage = lazyWithRetry(() => import('../pages/usuarios/UsuariosPage'));
+const ConfiguracionPage = lazyWithRetry(() => import('../pages/configuracion/ConfiguracionPage'));
+const OrdenesTrabajoPage = lazyWithRetry(() => import('../pages/ordenes-trabajo/OrdenesTrabajoPage'));
+const NuevaOtPage = lazyWithRetry(() => import('../pages/ordenes-trabajo/NuevaOtPage'));
+const OtDetallePage = lazyWithRetry(() => import('../pages/ordenes-trabajo/OtDetallePage'));
+const KanbanPage = lazyWithRetry(() => import('../pages/kanban/KanbanPage'));
+const MecanicosPage = lazyWithRetry(() => import('../pages/mecanicos/MecanicosPage'));
+const InventarioPage = lazyWithRetry(() => import('../pages/inventario/InventarioPage'));
+const ProveedoresPage = lazyWithRetry(() => import('../pages/proveedores/ProveedoresPage'));
+const CajaPage = lazyWithRetry(() => import('../pages/caja/CajaPage'));
+const FacturacionPage = lazyWithRetry(() => import('../pages/facturacion/FacturacionPage'));
+const NotificacionesPage = lazyWithRetry(() => import('../pages/notificaciones/NotificacionesPage'));
+const ReportesPage = lazyWithRetry(() => import('../pages/reportes/ReportesPage'));
+const BillingPage = lazyWithRetry(() => import('../pages/billing/BillingPage'));
+const BillingReturnPage = lazyWithRetry(() => import('../pages/billing/BillingReturnPage'));
+const PortalPage = lazyWithRetry(() => import('../pages/portal/PortalPage'));
 
 function LazyFallback() {
   return (
@@ -39,26 +42,30 @@ function LazyFallback() {
   );
 }
 
-function Lazy({ children }: { children: React.ReactNode }) {
+function Lazy({ children }: { children: ReactNode }) {
   return <Suspense fallback={<LazyFallback />}>{children}</Suspense>;
 }
 
+const routeErrorElement = <RouteErrorPage />;
+
 export const router = createBrowserRouter([
   // Public routes
-  { path: '/login', element: <LoginPage /> },
-  { path: '/register', element: <RegisterPage /> },
-  { path: '/forgot-password', element: <Lazy><ForgotPasswordPage /></Lazy> },
-  { path: '/reset-password', element: <Lazy><ResetPasswordPage /></Lazy> },
-  { path: '/activate', element: <Lazy><ActivatePage /></Lazy> },
-  { path: '/billing/return', element: <Lazy><BillingReturnPage /></Lazy> },
-  { path: '/portal/:token', element: <Lazy><PortalPage /></Lazy> },
+  { path: '/login', element: <LoginPage />, errorElement: routeErrorElement },
+  { path: '/register', element: <RegisterPage />, errorElement: routeErrorElement },
+  { path: '/forgot-password', element: <Lazy><ForgotPasswordPage /></Lazy>, errorElement: routeErrorElement },
+  { path: '/reset-password', element: <Lazy><ResetPasswordPage /></Lazy>, errorElement: routeErrorElement },
+  { path: '/activate', element: <Lazy><ActivatePage /></Lazy>, errorElement: routeErrorElement },
+  { path: '/billing/return', element: <Lazy><BillingReturnPage /></Lazy>, errorElement: routeErrorElement },
+  { path: '/portal/:token', element: <Lazy><PortalPage /></Lazy>, errorElement: routeErrorElement },
 
   // Protected routes
   {
     element: <ProtectedRoute />,
+    errorElement: routeErrorElement,
     children: [
       {
         element: <AppLayout />,
+        errorElement: routeErrorElement,
         children: [
           { path: '/', element: <Lazy><DashboardPage /></Lazy> },
           { path: '/clientes', element: <Lazy><ClientesPage /></Lazy> },

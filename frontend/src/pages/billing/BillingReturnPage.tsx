@@ -11,6 +11,11 @@ export default function BillingReturnPage() {
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('Estamos confirmando tu pago con Flow...');
+  const appRedirectTarget = isAuthenticated ? '/app/billing' : '/app/login';
+
+  const redirectToApp = () => {
+    window.location.replace(appRedirectTarget);
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -34,7 +39,7 @@ export default function BillingReturnPage() {
 
           if (estado === 'paid') {
             toast.success('Pago confirmado correctamente.');
-            navigate(isAuthenticated ? '/billing' : '/login', { replace: true });
+            redirectToApp();
             return;
           }
 
@@ -85,9 +90,7 @@ export default function BillingReturnPage() {
     return () => {
       cancelled = true;
     };
-  }, [isAuthenticated, navigate, searchParams]);
-
-  const backTarget = isAuthenticated ? '/billing' : '/login';
+  }, [appRedirectTarget, isAuthenticated, navigate, searchParams]);
 
   return (
     <div className="mx-auto flex min-h-[60vh] w-full max-w-2xl items-center justify-center px-4">
@@ -104,7 +107,7 @@ export default function BillingReturnPage() {
 
           {!loading && (
             <div className="flex justify-end">
-              <Button onClick={() => navigate(backTarget, { replace: true })}>
+              <Button onClick={redirectToApp}>
                 {isAuthenticated ? 'Volver a Billing' : 'Ir a Login'}
               </Button>
             </div>
