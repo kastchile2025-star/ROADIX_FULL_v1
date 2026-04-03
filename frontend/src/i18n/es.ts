@@ -529,7 +529,7 @@ export const es: Record<string, string> = {
   'billing.cargandoUso': 'Cargando uso…',
   'billing.mensual': 'Mensual',
   'billing.anual': 'Anual',
-  'billing.descAnual': '(-15%)',
+  'billing.descAnual': '(-10%)',
   'billing.planActual': 'Plan actual',
   'billing.gratis': 'Gratis',
   'billing.aMedida': 'A medida',
