@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Plus, Pencil, Trash2, Search } from 'lucide-react';
 import { Button, Input, Modal, Card } from '../../components/ui';
+import { useConfirm } from '../../components/ui';
 import { proveedoresService } from '../../services/proveedores.service';
 import { useI18n } from '../../context/I18nContext';
 import type { Proveedor } from '../../types';
@@ -20,6 +21,7 @@ type Form = z.infer<typeof schema>;
 
 export default function ProveedoresPage() {
   const { t } = useI18n();
+  const confirm = useConfirm();
   const [proveedores, setProveedores] = useState<Proveedor[]>([]);
   const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
@@ -66,7 +68,7 @@ export default function ProveedoresPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm(t('proveedores.confirmDelete'))) return;
+    if (!(await confirm({ message: t('proveedores.confirmDelete'), variant: 'danger' }))) return;
     await proveedoresService.remove(id);
     load();
   };

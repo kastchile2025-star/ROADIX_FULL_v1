@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Card, Badge, Button } from '../../components/ui';
+import { useConfirm } from '../../components/ui';
 import { billingService } from '../../services/billing.service';
 import toast from 'react-hot-toast';
 import type { Plan, Suscripcion, PagoSuscripcion, BillingUsage } from '../../types';
@@ -68,6 +69,7 @@ function UsageBar({ label, icon: Icon, usado, limite }: { label: string; icon: R
 
 export default function BillingPage() {
   const { t } = useI18n();
+  const confirm = useConfirm();
   const [planes, setPlanes] = useState<Plan[]>([]);
   const [suscripcion, setSuscripcion] = useState<Suscripcion | null>(null);
   const [usage, setUsage] = useState<BillingUsage | null>(null);
@@ -155,7 +157,10 @@ export default function BillingPage() {
 
     const monto = periodo === 'anual' ? plan.precio_anual : plan.precio_mensual;
 
-    if (monto > 0 && !confirm(`¿Confirmas el cambio al plan ${plan.nombre.toUpperCase()} (${periodo})?\nMonto: ${fmt(monto)}`)) {
+    if (monto > 0 && !(await confirm({
+      title: t('billing.confirmCambioTitle') ?? 'Cambio de plan',
+      message: `¿Confirmas el cambio al plan ${plan.nombre.toUpperCase()} (${periodo})?\nMonto: ${fmt(monto)}`,
+    }))) {
       return;
     }
 
@@ -172,7 +177,7 @@ export default function BillingPage() {
   };
 
   const handleCancelar = async () => {
-    if (!confirm(t('billing.confirmCancelar'))) return;
+    if (!(await confirm({ title: t('billing.cancelarTitle') ?? 'Cancelar suscripción', message: t('billing.confirmCancelar'), variant: 'danger' }))) return;
     setActionLoading(true);
     try {
       await billingService.cancelar();

@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Plus, Search, Pencil, Trash2 } from 'lucide-react';
 import { Button, Input, Modal, Card, Badge } from '../../components/ui';
+import { useConfirm } from '../../components/ui';
 import { clientesService } from '../../services/clientes.service';
 import { useI18n } from '../../context/I18nContext';
 import type { Cliente } from '../../types';
@@ -21,6 +22,7 @@ type Form = z.infer<typeof schema>;
 
 export default function ClientesPage() {
   const { t } = useI18n();
+  const confirm = useConfirm();
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
@@ -78,7 +80,7 @@ export default function ClientesPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm(t('clientes.confirmDelete'))) return;
+    if (!(await confirm({ message: t('clientes.confirmDelete'), variant: 'danger' }))) return;
     await clientesService.remove(id);
     await load();
   };

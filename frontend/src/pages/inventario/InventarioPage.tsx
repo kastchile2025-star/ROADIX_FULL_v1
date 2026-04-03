@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { Plus, Pencil, Trash2, AlertTriangle, Search, Package, ArrowDownToLine, ArrowUpFromLine } from 'lucide-react';
 import { useI18n } from '../../context/I18nContext';
 import { Button, Input, Modal, Card, Badge } from '../../components/ui';
+import { useConfirm } from '../../components/ui';
 import { repuestosService } from '../../services/repuestos.service';
 import { inventarioService } from '../../services/inventario.service';
 import type { Repuesto, MovimientoStock } from '../../types';
@@ -33,6 +34,7 @@ type MovimientoForm = z.infer<typeof movimientoSchema>;
 
 export default function InventarioPage() {
   const { t } = useI18n();
+  const confirm = useConfirm();
   const [repuestos, setRepuestos] = useState<Repuesto[]>([]);
   const [stockBajo, setStockBajo] = useState<Repuesto[]>([]);
   const [categorias, setCategorias] = useState<string[]>([]);
@@ -91,7 +93,7 @@ export default function InventarioPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm(t('inventario.confirmDelete'))) return;
+    if (!(await confirm({ message: t('inventario.confirmDelete'), variant: 'danger' }))) return;
     await repuestosService.remove(id);
     load();
   };

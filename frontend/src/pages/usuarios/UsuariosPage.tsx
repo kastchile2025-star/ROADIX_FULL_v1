@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Plus, Pencil, Trash2, Mail } from 'lucide-react';
 import { Button, Input, Modal, Card, Badge } from '../../components/ui';
+import { useConfirm } from '../../components/ui';
 import { usuariosService } from '../../services/usuarios.service';
 import { authService } from '../../services/auth.service';
 import { useI18n } from '../../context/I18nContext';
@@ -24,6 +25,7 @@ type Form = z.infer<typeof schema>;
 
 export default function UsuariosPage() {
   const { t } = useI18n();
+  const confirm = useConfirm();
 
   const roleLabels: Record<string, string> = {
     admin_taller: t('usuarios.rolAdmin'),
@@ -95,7 +97,7 @@ export default function UsuariosPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm(t('usuarios.confirmDesactivar'))) return;
+    if (!(await confirm({ message: t('usuarios.confirmDesactivar'), variant: 'danger' }))) return;
     await usuariosService.remove(id);
     await load();
   };

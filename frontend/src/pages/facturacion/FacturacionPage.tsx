@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { FileText, Plus, XCircle, Download, Mail } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Button, Input, Modal, Card, Badge } from '../../components/ui';
+import { useConfirm } from '../../components/ui';
 import { facturacionService } from '../../services/facturacion.service';
 import { useI18n } from '../../context/I18nContext';
 import type { Factura } from '../../types';
@@ -22,6 +23,7 @@ type EmitirForm = z.infer<typeof emitirSchema>;
 
 export default function FacturacionPage() {
   const { t } = useI18n();
+  const confirm = useConfirm();
 
   const tipoDteLabels: Record<string, string> = {
     boleta: t('facturacion.tipoBoleta'),
@@ -73,7 +75,7 @@ export default function FacturacionPage() {
   };
 
   const handleAnular = async (id: number) => {
-    if (!confirm(t('facturacion.confirmAnular'))) return;
+    if (!(await confirm({ message: t('facturacion.confirmAnular'), variant: 'danger' }))) return;
     try {
       await facturacionService.anular(id);
       toast.success(t('facturacion.toastAnulado'));

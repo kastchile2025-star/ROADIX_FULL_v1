@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Plus, Search, Pencil, Trash2 } from 'lucide-react';
 import { Button, Input, Modal, Card, Badge } from '../../components/ui';
+import { useConfirm } from '../../components/ui';
 import { vehiculosService } from '../../services/vehiculos.service';
 import { useI18n } from '../../context/I18nContext';
 import type { Vehiculo } from '../../types';
@@ -23,6 +24,7 @@ type Form = z.infer<typeof schema>;
 
 export default function VehiculosPage() {
   const { t } = useI18n();
+  const confirm = useConfirm();
   const [vehiculos, setVehiculos] = useState<Vehiculo[]>([]);
   const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
@@ -82,7 +84,7 @@ export default function VehiculosPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm(t('vehiculos.confirmDelete'))) return;
+    if (!(await confirm({ message: t('vehiculos.confirmDelete'), variant: 'danger' }))) return;
     await vehiculosService.remove(id);
     await load();
   };

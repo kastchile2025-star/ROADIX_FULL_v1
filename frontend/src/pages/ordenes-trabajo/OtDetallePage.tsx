@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ImagePlus, Plus, Trash2, Send, CheckCircle, XCircle } from 'lucide-react';
 import { Button, Card, Input, Modal } from '../../components/ui';
+import { useConfirm } from '../../components/ui';
 import toast from 'react-hot-toast';
 import { archivosService } from '../../services/archivos.service';
 import { ordenesTrabajoService } from '../../services/ordenes-trabajo.service';
@@ -55,6 +56,7 @@ export default function OtDetallePage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { t } = useI18n();
+  const confirm = useConfirm();
   const [ot, setOt] = useState<OrdenTrabajo | null>(null);
   const [activeTab, setActiveTab] = useState<string>(tabKeys[0]);
   const [mecanicos, setMecanicos] = useState<Mecanico[]>([]);
@@ -136,7 +138,7 @@ export default function OtDetallePage() {
   };
 
   const handleRemoveFoto = async (foto: OtFoto) => {
-    if (!confirm(t('otDetalle.fotoConfirmDelete'))) return;
+    if (!(await confirm({ message: t('otDetalle.fotoConfirmDelete'), variant: 'danger' }))) return;
     await ordenesTrabajoService.removeFoto(ot.id, foto.id);
     toast.success(t('otDetalle.fotoEliminada'));
     load();

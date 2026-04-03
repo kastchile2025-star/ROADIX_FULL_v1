@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { Button, Input, Modal, Card, Badge } from '../../components/ui';
+import { useConfirm } from '../../components/ui';
 import { mecanicosService } from '../../services/mecanicos.service';
 import { useI18n } from '../../context/I18nContext';
 import type { Mecanico } from '../../types';
@@ -18,6 +19,7 @@ type Form = z.infer<typeof schema>;
 
 export default function MecanicosPage() {
   const { t } = useI18n();
+  const confirm = useConfirm();
   const [mecanicos, setMecanicos] = useState<Mecanico[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Mecanico | null>(null);
@@ -62,7 +64,7 @@ export default function MecanicosPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm(t('mecanicos.confirmDesactivar'))) return;
+    if (!(await confirm({ message: t('mecanicos.confirmDesactivar'), variant: 'danger' }))) return;
     await mecanicosService.remove(id);
     load();
   };
