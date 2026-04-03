@@ -1,5 +1,5 @@
 import api from './api';
-import type { Plan, Suscripcion, PagoSuscripcion, BillingUsage } from '../types';
+import type { Plan, Suscripcion, PagoSuscripcion, BillingUsage, BillingPlanChangeResult, FlowStatusResult } from '../types';
 
 export const billingService = {
   getPlanes: () => api.get<Plan[]>('/planes').then((r) => r.data),
@@ -14,7 +14,10 @@ export const billingService = {
     api.get<PagoSuscripcion[]>('/suscripciones/historial-pagos').then((r) => r.data),
 
   cambiarPlan: (plan_id: number, periodo: 'mensual' | 'anual') =>
-    api.post<Suscripcion>('/suscripciones/cambiar-plan', { plan_id, periodo }).then((r) => r.data),
+    api.post<Suscripcion | BillingPlanChangeResult>('/suscripciones/cambiar-plan', { plan_id, periodo }).then((r) => r.data),
+
+  getFlowStatus: (token: string) =>
+    api.get<FlowStatusResult>('/billing/flow/status', { params: { token } }).then((r) => r.data),
 
   cancelar: () =>
     api.post<Suscripcion>('/suscripciones/cancelar').then((r) => r.data),

@@ -3,7 +3,7 @@ import { Card, Badge, Button } from '../../components/ui';
 import { useConfirm } from '../../components/ui';
 import { billingService } from '../../services/billing.service';
 import toast from 'react-hot-toast';
-import type { Plan, Suscripcion, PagoSuscripcion, BillingUsage } from '../../types';
+import type { Plan, Suscripcion, PagoSuscripcion, BillingUsage, BillingPlanChangeResult } from '../../types';
 import { useI18n } from '../../context/I18nContext';
 import {
   CheckCircle,
@@ -77,6 +77,23 @@ export default function BillingPage() {
   const [periodo, setPeriodo] = useState<'mensual' | 'anual'>('mensual');
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+
+  const getApiErrorMessage = (error: unknown, fallback: string) => {
+    if (typeof error === 'object' && error !== null && 'response' in error) {
+      const response = (error as {
+        response?: {
+          data?: {
+            message?: string;
+            response?: { message?: string };
+          };
+        };
+      }).response;
+
+      return response?.data?.message ?? response?.data?.response?.message ?? fallback;
+    }
+
+    return fallback;
+  };
 
   const isNotFoundError = (error: unknown) =>
     typeof error === 'object'
@@ -166,11 +183,22 @@ export default function BillingPage() {
 
     setActionLoading(true);
     try {
-      await billingService.cambiarPlan(planId, periodo);
+      const result = await billingService.cambiarPlan(planId, periodo);
+
+      if ((result as BillingPlanChangeResult).requiresPayment) {
+        const checkoutUrl = (result as BillingPlanChangeResult).checkoutUrl;
+        if (!checkoutUrl) {
+          throw new Error('Flow no devolvio URL de pago');
+        }
+
+        window.location.assign(checkoutUrl);
+        return;
+      }
+
       toast.success(`${t('billing.toastPlanCambiado')} ${plan.nombre.toUpperCase()}`);
       await load();
-    } catch (e: any) {
-      toast.error(e.response?.data?.message ?? t('billing.toastErrorCambiar'));
+    } catch (e: unknown) {
+      toast.error(getApiErrorMessage(e, t('billing.toastErrorCambiar')));
     } finally {
       setActionLoading(false);
     }
@@ -183,8 +211,8 @@ export default function BillingPage() {
       await billingService.cancelar();
       toast.success(t('billing.toastCancelada'));
       await load();
-    } catch (e: any) {
-      toast.error(e.response?.data?.message ?? t('billing.toastErrorCancelar'));
+    } catch (e: unknown) {
+      toast.error(getApiErrorMessage(e, t('billing.toastErrorCancelar')));
     } finally {
       setActionLoading(false);
     }
@@ -196,8 +224,8 @@ export default function BillingPage() {
       await billingService.reactivar();
       toast.success(t('billing.toastReactivada'));
       await load();
-    } catch (e: any) {
-      toast.error(e.response?.data?.message ?? t('billing.toastErrorReactivar'));
+    } catch (e: unknown) {
+      toast.error(getApiErrorMessage(e, t('billing.toastErrorReactivar')));
     } finally {
       setActionLoading(false);
     }

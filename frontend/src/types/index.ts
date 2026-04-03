@@ -78,6 +78,35 @@ export interface Suscripcion {
   cancelado_at?: string;
 }
 
+export interface BillingPlanChangeResult {
+  requiresPayment: true;
+  provider: 'flow';
+  checkoutUrl: string;
+  token?: string;
+  flowOrder?: string;
+  commerceOrder: string;
+  amount: number;
+  planId: number;
+  periodo: 'mensual' | 'anual';
+}
+
+export interface FlowStatusResult {
+  token: string;
+  statusPayload?: {
+    response?: {
+      status?: string | number;
+      [key: string]: unknown;
+    };
+  };
+  conciliation?: {
+    matched: boolean;
+    estado?: 'paid' | 'failed' | 'pending';
+    statusCode?: string;
+    appliedPlanId?: number;
+    [key: string]: unknown;
+  };
+}
+
 export interface PagoSuscripcion {
   id: number;
   suscripcion_id: number;

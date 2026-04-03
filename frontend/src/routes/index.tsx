@@ -28,6 +28,7 @@ const FacturacionPage = lazy(() => import('../pages/facturacion/FacturacionPage'
 const NotificacionesPage = lazy(() => import('../pages/notificaciones/NotificacionesPage'));
 const ReportesPage = lazy(() => import('../pages/reportes/ReportesPage'));
 const BillingPage = lazy(() => import('../pages/billing/BillingPage'));
+const BillingReturnPage = lazy(() => import('../pages/billing/BillingReturnPage'));
 const PortalPage = lazy(() => import('../pages/portal/PortalPage'));
 
 function LazyFallback() {
@@ -73,6 +74,7 @@ export const router = createBrowserRouter([
           { path: '/notificaciones', element: <Lazy><NotificacionesPage /></Lazy> },
           { path: '/reportes', element: <Lazy><ReportesPage /></Lazy> },
           { path: '/billing', element: <Lazy><BillingPage /></Lazy> },
+          { path: '/billing/return', element: <Lazy><BillingReturnPage /></Lazy> },
           { path: '/usuarios', element: <Lazy><UsuariosPage /></Lazy> },
           { path: '/configuracion', element: <Lazy><ConfiguracionPage /></Lazy> },
         ],

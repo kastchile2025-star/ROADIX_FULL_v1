@@ -14,10 +14,19 @@ export class FlowController {
 
   @Get('health')
   health() {
+    const config = this.flowService.getConfig();
     return {
       ok: true,
       configured: this.flowService.isConfigured(),
-      config: this.flowService.getConfig(),
+      config: {
+        env: config.env,
+        baseUrl: config.baseUrl,
+        commerceId: config.commerceId,
+        returnUrl: config.returnUrl,
+        confirmUrl: config.confirmUrl,
+        hasApiKey: Boolean(config.apiKey),
+        hasSecretKey: Boolean(config.secretKey),
+      },
     };
   }
 
@@ -27,8 +36,20 @@ export class FlowController {
   }
 
   @Get('status')
-  getStatus(@Query('token') token: string) {
-    return this.flowService.getPaymentStatus(token);
+  async getStatus(@Query('token') token: string) {
+    const statusPayload = token
+      ? await this.flowService.getPaymentStatus(token)
+      : { response: {} as Record<string, unknown> };
+    const statusResponse = (statusPayload.response ?? {}) as Record<string, unknown>;
+    const conciliation = token
+      ? await this.suscripcionesService.conciliarPagoFlowDesdeWebhook(token, { response: statusResponse })
+      : { matched: false, token, note: 'missing token' };
+
+    return {
+      token,
+      statusPayload,
+      conciliation,
+    };
   }
 
   @Post('webhook')

@@ -18,6 +18,7 @@ import {
   SuscripcionEstado,
   SuscripcionPeriodo,
   PagoSuscripcionEstado,
+  UserRole,
 } from '../../common/enums.js';
 import { CambiarPlanDto } from './dto/cambiar-plan.dto.js';
 import { CreateFlowPaymentDto } from '../flow/dto/create-flow-payment.dto.js';
@@ -29,6 +30,27 @@ type FlowPaymentResponse = {
   flowOrder?: number | string;
   request?: Record<string, unknown>;
   response?: Record<string, unknown>;
+};
+
+type PendingPlanChange = {
+  planId: number;
+  periodo: SuscripcionPeriodo;
+  amount: number;
+  currentPlanId: number;
+  initiatedAt: string;
+  initiatedByEmail?: string;
+};
+
+type FlowPlanChangeCheckout = {
+  requiresPayment: true;
+  provider: 'flow';
+  checkoutUrl: string;
+  token?: string;
+  flowOrder?: string;
+  commerceOrder: string;
+  amount: number;
+  planId: number;
+  periodo: SuscripcionPeriodo;
 };
 
 @Injectable()
@@ -154,6 +176,9 @@ export class SuscripcionesService {
     const commerceOrder = this.asString(response['commerceOrder']);
     const flowOrder = this.asString(response['flowOrder']);
     const statusCode = this.asString(response['status']) ?? 'UNKNOWN';
+    const pago = await this.buscarPagoPorReferencia(commerceOrder, token, flowOrder);
+    const pendingPlanChange = this.extraerCambioPlanPendiente(pago?.detalle_respuesta);
+    const isPlanChangeCheckout = Boolean(pendingPlanChange);
 
     const suscripcion = await this.buscarSuscripcionPorReferencia(commerceOrder, token, flowOrder);
     if (!suscripcion) {
@@ -167,7 +192,12 @@ export class SuscripcionesService {
       };
     }
 
-    const amount = Number(response['amount'] ?? suscripcion.monto_pagado ?? this.obtenerMontoSuscripcion(suscripcion));
+    const amount = Number(
+      response['amount']
+      ?? pendingPlanChange?.amount
+      ?? suscripcion.monto_pagado
+      ?? this.obtenerMontoSuscripcion(suscripcion),
+    );
     const paid = this.flowStatusEsExitoso(response);
     const rejected = this.flowStatusEsFallido(response);
 
@@ -175,9 +205,20 @@ export class SuscripcionesService {
     const referenciaExterna = flowOrder ?? token;
 
     if (paid) {
+      if (pendingPlanChange) {
+        suscripcion.plan_id = pendingPlanChange.planId;
+        suscripcion.periodo = pendingPlanChange.periodo;
+        const targetPlan = await this.planRepo.findOneBy({ id: pendingPlanChange.planId });
+        if (targetPlan) {
+          suscripcion.plan = targetPlan;
+        }
+      }
+
       suscripcion.estado = SuscripcionEstado.ACTIVA;
       suscripcion.proximo_cobro = this.calcularProximoCobro(suscripcion.periodo);
       suscripcion.fecha_fin = suscripcion.proximo_cobro;
+      suscripcion.trial_hasta = null as unknown as Date;
+      suscripcion.cancelado_at = null as unknown as Date;
       suscripcion.monto_pagado = amount;
       suscripcion.metodo_pago = 'flow';
       suscripcion.referencia_pago = referenciaInterna;
@@ -201,6 +242,26 @@ export class SuscripcionesService {
         matched: true,
         suscripcionId: suscripcion.id,
         estado: 'paid',
+        statusCode,
+        appliedPlanId: pendingPlanChange?.planId,
+      };
+    }
+
+    if (isPlanChangeCheckout) {
+      await this.upsertHistorialFlow(
+        suscripcion,
+        amount,
+        rejected ? PagoSuscripcionEstado.FALLIDO : PagoSuscripcionEstado.PENDIENTE,
+        referenciaInterna,
+        referenciaExterna,
+        statusCode,
+        this.safeJson({ response }),
+      );
+
+      return {
+        matched: true,
+        suscripcionId: suscripcion.id,
+        estado: rejected ? 'failed' : 'pending',
         statusCode,
       };
     }
@@ -276,7 +337,7 @@ export class SuscripcionesService {
     });
   }
 
-  async cambiarPlan(tallerId: number, dto: CambiarPlanDto) {
+  async cambiarPlan(tallerId: number, dto: CambiarPlanDto, billingEmail?: string) {
     const suscripcion = await this.getActivePlan(tallerId);
     const nuevoPlan = await this.planRepo.findOneBy({ id: dto.plan_id, activo: true });
     if (!nuevoPlan) throw new NotFoundException('Plan no encontrado');
@@ -307,7 +368,11 @@ export class SuscripcionesService {
       return this.suscripcionRepo.save(suscripcion);
     }
 
-    const pagoExitoso = await this.procesarPagoGateway(monto, suscripcion);
+    if (this.flowService.isConfigured()) {
+      return this.crearCheckoutCambioPlan(suscripcion, nuevoPlan, dto, monto, billingEmail);
+    }
+
+    const pagoExitoso = await this.procesarPagoGateway(monto, suscripcion, billingEmail);
 
     if (!pagoExitoso.success) {
       await this.registrarPago(suscripcion, monto, PagoSuscripcionEstado.FALLIDO, pagoExitoso.referencia);
@@ -490,6 +555,137 @@ export class SuscripcionesService {
     }
   }
 
+  private parseJsonObject(value?: string) {
+    if (!value) return null;
+    try {
+      const parsed = JSON.parse(value);
+      return typeof parsed === 'object' && parsed !== null
+        ? parsed as Record<string, unknown>
+        : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private mergeDetalleRespuesta(actual?: string, patch?: string) {
+    if (!patch) return actual;
+
+    const currentPayload = this.parseJsonObject(actual);
+    const patchPayload = this.parseJsonObject(patch);
+
+    if (currentPayload && patchPayload) {
+      return this.safeJson({
+        ...currentPayload,
+        ...patchPayload,
+      });
+    }
+
+    return patch;
+  }
+
+  private extraerCambioPlanPendiente(detalle?: string): PendingPlanChange | null {
+    const payload = this.parseJsonObject(detalle);
+    const pendingPlan = payload?.pendingPlan;
+    if (!pendingPlan || typeof pendingPlan !== 'object') {
+      return null;
+    }
+
+    const planId = Number((pendingPlan as Record<string, unknown>).planId);
+    const periodo = this.asString((pendingPlan as Record<string, unknown>).periodo) as SuscripcionPeriodo | undefined;
+    const amount = Number((pendingPlan as Record<string, unknown>).amount);
+    const currentPlanId = Number((pendingPlan as Record<string, unknown>).currentPlanId ?? 0);
+    const initiatedAt = this.asString((pendingPlan as Record<string, unknown>).initiatedAt) ?? new Date().toISOString();
+    const initiatedByEmail = this.asString((pendingPlan as Record<string, unknown>).initiatedByEmail);
+
+    if (!Number.isFinite(planId) || !Number.isFinite(amount)) {
+      return null;
+    }
+
+    if (periodo !== SuscripcionPeriodo.MENSUAL && periodo !== SuscripcionPeriodo.ANUAL) {
+      return null;
+    }
+
+    return {
+      planId,
+      periodo,
+      amount,
+      currentPlanId,
+      initiatedAt,
+      initiatedByEmail,
+    };
+  }
+
+  private extraerFlowCheckoutUrl(response: Record<string, unknown>) {
+    const baseUrl = this.asString(response['url'])
+      ?? this.asString(response['paymentUrl'])
+      ?? this.asString(response['redirectUrl']);
+    const token = this.asString(response['token']);
+
+    if (!baseUrl) return undefined;
+    if (token && !/[?&]token=/.test(baseUrl)) {
+      return `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}token=${encodeURIComponent(token)}`;
+    }
+    return baseUrl;
+  }
+
+  private isValidBillingEmail(email?: string) {
+    if (!email) return false;
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  }
+
+  private async resolveBillingEmail(tallerId: number, preferredEmail?: string) {
+    if (this.isValidBillingEmail(preferredEmail)) {
+      return preferredEmail!.trim();
+    }
+
+    const candidates = await this.usuarioRepo.find({
+      where: [
+        { taller_id: tallerId, rol: UserRole.ADMIN_TALLER, activo: true },
+        { taller_id: tallerId, rol: UserRole.SUPERADMIN, activo: true },
+      ],
+      order: { created_at: 'ASC' },
+      take: 5,
+    });
+
+    const validUser = candidates.find((user) => this.isValidBillingEmail(user.email));
+    if (validUser) {
+      return validUser.email.trim();
+    }
+
+    throw new BadRequestException('Se requiere un correo valido para continuar con el pago en Flow. Actualiza el email del administrador.');
+  }
+
+  private async buscarPagoPorReferencia(
+    commerceOrder?: string,
+    token?: string,
+    flowOrder?: string,
+  ) {
+    if (commerceOrder) {
+      const byOrder = await this.historialPagoRepo.findOne({
+        where: { referencia: commerceOrder },
+        order: { created_at: 'DESC' },
+      });
+      if (byOrder) return byOrder;
+    }
+
+    if (flowOrder) {
+      const byFlowOrder = await this.historialPagoRepo.findOne({
+        where: { referencia_externa: flowOrder },
+        order: { created_at: 'DESC' },
+      });
+      if (byFlowOrder) return byFlowOrder;
+    }
+
+    if (token) {
+      return this.historialPagoRepo.findOne({
+        where: { referencia_externa: token },
+        order: { created_at: 'DESC' },
+      });
+    }
+
+    return null;
+  }
+
   private async buscarSuscripcionPorReferencia(
     commerceOrder?: string,
     token?: string,
@@ -544,7 +740,15 @@ export class SuscripcionesService {
 
     if (!pago) return null;
 
-    Object.assign(pago, patch ?? {});
+    const nextPatch = { ...(patch ?? {}) };
+    if (Object.prototype.hasOwnProperty.call(nextPatch, 'detalle_respuesta')) {
+      nextPatch.detalle_respuesta = this.mergeDetalleRespuesta(
+        pago.detalle_respuesta,
+        nextPatch.detalle_respuesta,
+      );
+    }
+
+    Object.assign(pago, nextPatch);
     return this.historialPagoRepo.save(pago);
   }
 
@@ -579,12 +783,77 @@ export class SuscripcionesService {
       pago.metodo_pago = 'flow';
       pago.referencia_externa = referenciaExterna;
       pago.codigo_respuesta = codigoRespuesta;
-      pago.detalle_respuesta = detalleRespuesta;
+      pago.detalle_respuesta = this.mergeDetalleRespuesta(
+        pago.detalle_respuesta,
+        detalleRespuesta,
+      ) ?? pago.detalle_respuesta;
       pago.estado = estado;
       pago.fecha_pago = new Date();
     }
 
     return this.historialPagoRepo.save(pago);
+  }
+
+  private async crearCheckoutCambioPlan(
+    suscripcion: Suscripcion,
+    nuevoPlan: Plan,
+    dto: CambiarPlanDto,
+    monto: number,
+    billingEmail?: string,
+  ): Promise<FlowPlanChangeCheckout> {
+    const resolvedEmail = await this.resolveBillingEmail(suscripcion.taller_id, billingEmail);
+    const prepared = await this.prepararPagoFlow(
+      suscripcion.id,
+      {
+        amount: monto,
+        externalId: `sub-${suscripcion.id}-${Date.now()}`,
+        subject: `ROADIX ${nuevoPlan.nombre}`,
+        email: resolvedEmail,
+      } as CreateFlowPaymentDto,
+    );
+
+    await this.actualizarPagoPendientePorReferencia(suscripcion.id, prepared.dto.externalId, {
+      codigo_respuesta: 'PENDING_FLOW_CHECKOUT',
+      detalle_respuesta: this.safeJson({
+        reason: 'plan_change',
+        pendingPlan: {
+          planId: dto.plan_id,
+          periodo: dto.periodo,
+          amount: monto,
+          currentPlanId: suscripcion.plan_id,
+          initiatedAt: new Date().toISOString(),
+          initiatedByEmail: resolvedEmail,
+        },
+      }),
+    });
+
+    const created = await this.flowService.createPayment(prepared.dto);
+    const flowResponse = (created.response ?? {}) as Record<string, unknown>;
+    const checkoutUrl = this.extraerFlowCheckoutUrl(flowResponse);
+
+    if (!checkoutUrl) {
+      throw new BadRequestException('Flow no devolvio una URL de pago valida');
+    }
+
+    await this.registrarPagoFlowCreado(suscripcion.id, {
+      commerceOrder: prepared.dto.externalId,
+      token: this.asString(flowResponse['token']),
+      flowOrder: this.asString(flowResponse['flowOrder']),
+      request: created.payload,
+      response: flowResponse,
+    });
+
+    return {
+      requiresPayment: true,
+      provider: 'flow',
+      checkoutUrl,
+      token: this.asString(flowResponse['token']),
+      flowOrder: this.asString(flowResponse['flowOrder']),
+      commerceOrder: prepared.dto.externalId,
+      amount: monto,
+      planId: dto.plan_id,
+      periodo: dto.periodo,
+    };
   }
 
   private async procesarIntentoCobro(
@@ -701,11 +970,14 @@ export class SuscripcionesService {
   private async procesarPagoGateway(
     monto: number,
     suscripcion: Suscripcion,
+    preferredEmail?: string,
   ): Promise<{ success: boolean; referencia?: string; metodo?: string }> {
     if (!this.flowService.isConfigured()) {
       const referencia = `SIM-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
       return { success: true, referencia, metodo: 'simulado' };
     }
+
+    const billingEmail = await this.resolveBillingEmail(suscripcion.taller_id, preferredEmail);
 
     const prepared = await this.prepararPagoFlow(
       suscripcion.id,
@@ -713,17 +985,17 @@ export class SuscripcionesService {
         amount: monto,
         externalId: `sub-${suscripcion.id}-${Date.now()}`,
         subject: `ROADIX ${suscripcion.plan?.nombre ?? 'Suscripción'}`,
-        email: (suscripcion.taller as any)?.email,
+        email: billingEmail,
       } as CreateFlowPaymentDto,
     );
 
     const created = await this.flowService.createPayment(prepared.dto);
     await this.registrarPagoFlowCreado(suscripcion.id, {
       commerceOrder: prepared.dto.externalId,
-      token: undefined,
-      flowOrder: undefined,
+      token: this.asString((created.response as Record<string, unknown> | undefined)?.['token']),
+      flowOrder: this.asString((created.response as Record<string, unknown> | undefined)?.['flowOrder']),
       request: created.payload,
-      response: { signature: created.signature },
+      response: (created.response ?? {}) as Record<string, unknown>,
     });
 
     return {

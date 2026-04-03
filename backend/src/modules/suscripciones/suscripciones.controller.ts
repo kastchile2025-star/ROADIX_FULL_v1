@@ -34,9 +34,10 @@ export class SuscripcionesController {
   @Roles(UserRole.ADMIN_TALLER, UserRole.SUPERADMIN)
   cambiarPlan(
     @CurrentUser('taller_id') tallerId: number,
+    @CurrentUser('email') billingEmail: string,
     @Body() dto: CambiarPlanDto,
   ) {
-    return this.suscripcionesService.cambiarPlan(tallerId, dto);
+    return this.suscripcionesService.cambiarPlan(tallerId, dto, billingEmail);
   }
 
   @Post('cancelar')

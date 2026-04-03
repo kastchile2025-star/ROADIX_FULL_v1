@@ -9,15 +9,49 @@ export class FlowService {
 
   constructor(private readonly configService: ConfigService) {}
 
+  private normalizeUrl(url?: string) {
+    return url?.trim().replace(/\/+$/, '');
+  }
+
+  private resolveAppUrl() {
+    const configured = this.normalizeUrl(this.configService.get<string>('APP_URL'));
+    const base = configured && configured.length > 0 ? configured : 'https://roadix.cl/app';
+    return /\/app$/i.test(base) ? base : `${base}/app`;
+  }
+
+  private resolveBackendUrl() {
+    return this.normalizeUrl(
+      this.configService.get<string>('BACKEND_PUBLIC_URL')
+      ?? this.configService.get<string>('API_PUBLIC_URL')
+      ?? this.configService.get<string>('RENDER_EXTERNAL_URL'),
+    ) ?? 'https://roadix-full-v2.onrender.com';
+  }
+
+  private resolveReturnUrl() {
+    const configured = this.normalizeUrl(this.configService.get<string>('FLOW_RETURN_URL'));
+    if (configured && !configured.includes('app.roadix.cl')) {
+      return configured;
+    }
+    return `${this.resolveAppUrl()}/billing/return`;
+  }
+
+  private resolveConfirmUrl() {
+    const configured = this.normalizeUrl(this.configService.get<string>('FLOW_CONFIRM_URL'));
+    if (configured && !configured.includes('roadix-backend.onrender.com')) {
+      return configured;
+    }
+    return `${this.resolveBackendUrl()}/api/billing/flow/webhook`;
+  }
+
   getConfig() {
     return {
       env: this.configService.get<string>('FLOW_ENV', 'sandbox'),
       apiKey: this.configService.get<string>('FLOW_API_KEY'),
       secretKey: this.configService.get<string>('FLOW_SECRET_KEY'),
-      baseUrl: this.configService.get<string>('FLOW_BASE_URL', 'https://sandbox.flow.cl/api'),
+      baseUrl: this.normalizeUrl(this.configService.get<string>('FLOW_BASE_URL')) ?? 'https://sandbox.flow.cl/api',
       commerceId: this.configService.get<string>('FLOW_COMMERCE_ID'),
-      returnUrl: this.configService.get<string>('FLOW_RETURN_URL'),
-      confirmUrl: this.configService.get<string>('FLOW_CONFIRM_URL'),
+      returnUrl: this.resolveReturnUrl(),
+      confirmUrl: this.resolveConfirmUrl(),
     };
   }
 
@@ -99,9 +133,17 @@ export class FlowService {
     }
 
     if (!response.ok) {
+      const providerMessage =
+        typeof parsed === 'object'
+        && parsed !== null
+        && 'message' in parsed
+        && typeof (parsed as { message?: unknown }).message === 'string'
+          ? String((parsed as { message: string }).message)
+          : undefined;
+
       this.logger.error(`Flow request failed ${response.status} endpoint=${endpoint}`);
       throw new BadRequestException({
-        message: 'Flow request failed',
+        message: providerMessage ? `Flow: ${providerMessage}` : 'Flow request failed',
         endpoint,
         status: response.status,
         response: parsed,
