@@ -34,8 +34,8 @@ export async function seedPlanes(dataSource: DataSource) {
     },
     {
       nombre: 'starter',
-      precio_mensual: 25990,
-      precio_anual: 280692,
+      precio_mensual: 500,
+      precio_anual: 5400,
       max_usuarios: 3,
       max_ots_mes: 100,
       max_vehiculos: 200,
