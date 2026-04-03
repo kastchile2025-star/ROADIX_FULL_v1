@@ -49,18 +49,25 @@ const __dirname = dirname(__filename);
         database: config.get<string>('DB_DATABASE', 'roadix'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
-        synchronize: false,
+        synchronize: true,
+        ssl: config.get<string>('NODE_ENV') === 'production' ? { rejectUnauthorized: false } : false,
       }),
     }),
     BullModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        redis: {
-          host: config.get<string>('REDIS_HOST', 'localhost'),
-          port: config.get<number>('REDIS_PORT', 6379),
-        },
-      }),
+      useFactory: (config: ConfigService) => {
+        const redisUrl = config.get<string>('REDIS_URL');
+        if (redisUrl) {
+          return { url: redisUrl };
+        }
+        return {
+          redis: {
+            host: config.get<string>('REDIS_HOST', 'localhost'),
+            port: config.get<number>('REDIS_PORT', 6379),
+          },
+        };
+      },
     }),
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 60 }]),
     TypeOrmModule.forFeature([AuditoriaLog]),
