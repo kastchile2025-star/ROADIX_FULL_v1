@@ -214,9 +214,9 @@ export function NuevaOtWizard({ open, onClose }: Props) {
   const selectCls = 'w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 text-sm';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto pt-10 pb-10">
-      <div className="absolute inset-0 bg-black/50" onClick={handleClose} aria-hidden />
-      <div className="relative flex max-h-[85vh] w-full max-w-2xl flex-col rounded-2xl bg-white shadow-2xl dark:bg-gray-800 overflow-hidden my-auto">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-y-auto p-4">
+      <div className="fixed inset-0 bg-black/50" onClick={handleClose} aria-hidden />
+      <div className="relative flex max-h-[90vh] w-full max-w-2xl flex-col rounded-2xl bg-white shadow-2xl dark:bg-gray-800 overflow-hidden">
         {/* ── header ── */}
         <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-6 py-4">
           <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">

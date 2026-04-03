@@ -34,6 +34,7 @@ export function Header({ collapsed }: { collapsed: boolean }) {
   };
 
   return (
+    <>
     <header
       className={`fixed inset-x-0 top-0 z-20 flex h-16 items-center justify-between border-b border-gray-200/80 bg-white/95 backdrop-blur-sm px-6 dark:border-slate-700/60 dark:bg-slate-900/95 transition-all duration-300 ${
         collapsed ? 'left-16' : 'left-60'
@@ -91,7 +92,8 @@ export function Header({ collapsed }: { collapsed: boolean }) {
         </button>
       </div>
 
-      <NuevaOtWizard open={wizardOpen} onClose={() => setWizardOpen(false)} />
     </header>
+    <NuevaOtWizard open={wizardOpen} onClose={() => setWizardOpen(false)} />
+    </>
   );
 }
