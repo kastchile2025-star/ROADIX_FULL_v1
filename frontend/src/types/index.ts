@@ -91,6 +91,7 @@ export interface BillingPlanChangeResult {
 }
 
 export interface FlowStatusResult {
+  ok?: boolean;
   token: string;
   statusPayload?: {
     response?: {
@@ -105,6 +106,7 @@ export interface FlowStatusResult {
     appliedPlanId?: number;
     [key: string]: unknown;
   };
+  error?: string;
 }
 
 export interface PagoSuscripcion {

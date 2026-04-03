@@ -104,7 +104,7 @@ export class SuscripcionesService {
 
     const amount = dto.amount || this.obtenerMontoSuscripcion(suscripcion);
     const externalId = dto.externalId || `sub-${suscripcion.id}-${Date.now()}`;
-    const subject = dto.subject || `ROADIX ${suscripcion.plan?.nombre ?? 'Suscripción'}`;
+    const subject = dto.subject || `ROADIX ${(suscripcion.plan?.nombre ?? 'Suscripcion').toUpperCase()}`;
 
     const historialPago = await this.registrarPago(
       suscripcion,
@@ -817,7 +817,7 @@ export class SuscripcionesService {
       {
         amount: monto,
         externalId: `sub-${suscripcion.id}-${Date.now()}`,
-        subject: `ROADIX ${nuevoPlan.nombre}`,
+        subject: `ROADIX ${nuevoPlan.nombre.toUpperCase()}`,
         email: resolvedEmail,
       } as CreateFlowPaymentDto,
     );
@@ -994,7 +994,7 @@ export class SuscripcionesService {
       {
         amount: monto,
         externalId: `sub-${suscripcion.id}-${Date.now()}`,
-        subject: `ROADIX ${suscripcion.plan?.nombre ?? 'Suscripción'}`,
+        subject: `ROADIX ${(suscripcion.plan?.nombre ?? 'Suscripcion').toUpperCase()}`,
         email: billingEmail,
       } as CreateFlowPaymentDto,
     );

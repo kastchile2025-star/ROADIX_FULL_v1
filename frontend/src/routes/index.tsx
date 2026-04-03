@@ -50,6 +50,7 @@ export const router = createBrowserRouter([
   { path: '/forgot-password', element: <Lazy><ForgotPasswordPage /></Lazy> },
   { path: '/reset-password', element: <Lazy><ResetPasswordPage /></Lazy> },
   { path: '/activate', element: <Lazy><ActivatePage /></Lazy> },
+  { path: '/billing/return', element: <Lazy><BillingReturnPage /></Lazy> },
   { path: '/portal/:token', element: <Lazy><PortalPage /></Lazy> },
 
   // Protected routes
@@ -74,7 +75,6 @@ export const router = createBrowserRouter([
           { path: '/notificaciones', element: <Lazy><NotificacionesPage /></Lazy> },
           { path: '/reportes', element: <Lazy><ReportesPage /></Lazy> },
           { path: '/billing', element: <Lazy><BillingPage /></Lazy> },
-          { path: '/billing/return', element: <Lazy><BillingReturnPage /></Lazy> },
           { path: '/usuarios', element: <Lazy><UsuariosPage /></Lazy> },
           { path: '/configuracion', element: <Lazy><ConfiguracionPage /></Lazy> },
         ],
