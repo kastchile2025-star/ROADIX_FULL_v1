@@ -695,6 +695,7 @@ export const en: Record<string, string> = {
   'enum.metodoPago.webpay': 'Webpay',
   'enum.metodoPago.flow': 'Flow',
   'enum.metodoPago.stripe': 'Stripe',
+  'enum.metodoPago.pendiente': 'Pending',
   'enum.periodo.mensual': 'Monthly',
   'enum.periodo.anual': 'Annual',
 

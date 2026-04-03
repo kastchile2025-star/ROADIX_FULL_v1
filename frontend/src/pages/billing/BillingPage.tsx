@@ -47,6 +47,14 @@ const pagoBadge: Record<string, 'success' | 'warning' | 'danger' | 'default'> = 
   reembolsado: 'default',
 };
 
+const paymentMethodLabel = (t: (key: string) => string, metodoPago?: string) => {
+  if (!metodoPago) return '—';
+
+  const key = `enum.metodoPago.${metodoPago}`;
+  const translated = t(key);
+  return translated === key ? metodoPago : translated;
+};
+
 function UsageBar({ label, icon: Icon, usado, limite }: { label: string; icon: React.ElementType; usado: number; limite: number }) {
   const pct = limite === 0 ? 0 : Math.min(100, Math.round((usado / limite) * 100));
   const color = pct >= 90 ? 'bg-red-500' : pct >= 70 ? 'bg-amber-500' : 'bg-blue-500';
@@ -492,7 +500,7 @@ export default function BillingPage() {
                   <tr key={p.id} className="border-b dark:border-gray-700 last:border-0">
                     <td className="py-2 dark:text-gray-300">{fmtDate(p.fecha_pago)}</td>
                     <td className="py-2 font-medium dark:text-white">{fmt(Number(p.monto))}</td>
-                    <td className="py-2 dark:text-gray-300">{t(`enum.metodoPago.${p.metodo_pago}`)}</td>
+                    <td className="py-2 dark:text-gray-300">{paymentMethodLabel(t, p.metodo_pago)}</td>
                     <td className="py-2">
                       <Badge label={t(`enum.pagoEstado.${p.estado}`)} variant={pagoBadge[p.estado] ?? 'default'} />
                     </td>

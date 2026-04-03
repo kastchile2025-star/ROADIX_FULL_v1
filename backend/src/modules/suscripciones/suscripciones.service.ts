@@ -74,7 +74,7 @@ export class SuscripcionesService {
     private readonly flowService: FlowService,
   ) {}
 
-  async findByTaller(tallerId: number) {
+  private async cargarSuscripcionPorTaller(tallerId: number) {
     return this.suscripcionRepo.findOne({
       where: { taller_id: tallerId },
       relations: ['plan'],
@@ -82,12 +82,16 @@ export class SuscripcionesService {
     });
   }
 
+  async findByTaller(tallerId: number) {
+    const suscripcion = await this.cargarSuscripcionPorTaller(tallerId);
+    if (!suscripcion) return null;
+
+    await this.conciliarPagosPendientesFlow(suscripcion);
+    return this.cargarSuscripcionPorTaller(tallerId);
+  }
+
   async getActivePlan(tallerId: number) {
-    const suscripcion = await this.suscripcionRepo.findOne({
-      where: { taller_id: tallerId },
-      relations: ['plan'],
-      order: { created_at: 'DESC' },
-    });
+    const suscripcion = await this.findByTaller(tallerId);
     if (!suscripcion) throw new NotFoundException('Sin suscripción activa');
     return suscripcion;
   }
@@ -116,6 +120,7 @@ export class SuscripcionesService {
       undefined,
       'PENDING_CREATE',
       'Pago Flow creado en backend y pendiente de confirmación por webhook',
+      'flow',
     );
 
     suscripcion.referencia_pago = externalId;
@@ -638,6 +643,85 @@ export class SuscripcionesService {
     return baseUrl;
   }
 
+  private extraerTokenFlowDesdeDetalle(detalle?: string) {
+    const payload = this.parseJsonObject(detalle);
+    if (!payload) return undefined;
+
+    const response = payload.response;
+    if (response && typeof response === 'object') {
+      const nestedToken = this.asString((response as Record<string, unknown>).token);
+      if (nestedToken) return nestedToken;
+    }
+
+    return this.asString(payload.token);
+  }
+
+  private extraerTokenFlowDesdePago(pago: HistorialPagoSuscripcion) {
+    const referenciaExterna = this.asString(pago.referencia_externa);
+    if (referenciaExterna && !/^\d+$/.test(referenciaExterna) && !referenciaExterna.startsWith('sub-')) {
+      return referenciaExterna;
+    }
+
+    return this.extraerTokenFlowDesdeDetalle(pago.detalle_respuesta);
+  }
+
+  private esPagoPendienteDeFlow(pago: HistorialPagoSuscripcion) {
+    if (pago.estado !== PagoSuscripcionEstado.PENDIENTE) {
+      return false;
+    }
+
+    if (pago.metodo_pago === 'flow') {
+      return true;
+    }
+
+    const codigo = this.asString(pago.codigo_respuesta) ?? '';
+    if (codigo.startsWith('PENDING_') || codigo === 'FLOW_CREATED') {
+      return true;
+    }
+
+    const detalle = this.parseJsonObject(pago.detalle_respuesta);
+    return Boolean(detalle?.pendingPlan || detalle?.response || pago.referencia?.startsWith('sub-'));
+  }
+
+  private async conciliarPagosPendientesFlow(suscripcion: Suscripcion) {
+    if (!this.flowService.isConfigured()) {
+      return;
+    }
+
+    const pagosPendientes = await this.historialPagoRepo.find({
+      where: {
+        suscripcion_id: suscripcion.id,
+        estado: PagoSuscripcionEstado.PENDIENTE,
+      },
+      order: { created_at: 'DESC' },
+      take: 10,
+    });
+
+    const processedTokens = new Set<string>();
+
+    for (const pago of pagosPendientes) {
+      if (!this.esPagoPendienteDeFlow(pago)) {
+        continue;
+      }
+
+      const token = this.extraerTokenFlowDesdePago(pago);
+      if (!token || processedTokens.has(token)) {
+        continue;
+      }
+
+      processedTokens.add(token);
+
+      try {
+        const statusPayload = await this.flowService.getPaymentStatus(token);
+        const statusResponse = (statusPayload.response ?? {}) as Record<string, unknown>;
+        await this.conciliarPagoFlowDesdeWebhook(token, { response: statusResponse });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'unknown Flow reconciliation error';
+        this.logger.warn(`No se pudo conciliar pago Flow pendiente ${pago.referencia ?? pago.id}: ${message}`);
+      }
+    }
+  }
+
   private isValidBillingEmail(email?: string) {
     if (!email) return false;
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
@@ -960,11 +1044,12 @@ export class SuscripcionesService {
     referenciaExterna?: string,
     codigoRespuesta?: string,
     detalleRespuesta?: string,
+    metodoPagoOverride?: string,
   ) {
     const pago = this.historialPagoRepo.create({
       suscripcion_id: suscripcion.id,
       monto,
-      metodo_pago: suscripcion.metodo_pago ?? 'pendiente',
+      metodo_pago: metodoPagoOverride ?? suscripcion.metodo_pago ?? 'pendiente',
       referencia: referencia ?? undefined,
       referencia_externa: referenciaExterna ?? undefined,
       codigo_respuesta: codigoRespuesta ?? undefined,
