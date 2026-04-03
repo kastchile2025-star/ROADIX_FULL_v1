@@ -5,10 +5,10 @@ async function updateAdmin() {
   await dataSource.initialize();
   const hash = await bcrypt.hash('1234', 12);
   await dataSource.query(
-    `UPDATE usuario SET email = $1, password = $2 WHERE id = 1`,
-    ['admin', hash],
+    `UPDATE usuario SET nombre = $1, email = $2, password = $3 WHERE id = 1`,
+    ['Admin', 'admin', hash],
   );
-  console.log('Admin updated: email=admin, password=1234');
+  console.log('Admin updated: login=admin, password=1234');
   await dataSource.destroy();
 }
 

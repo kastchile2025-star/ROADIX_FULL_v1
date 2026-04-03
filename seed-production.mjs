@@ -1,11 +1,14 @@
-﻿#!/usr/bin/env node
-/**
- * Seed script for Roadix production â€” populates all sections with demo data.
+﻿/**
+ * Seed script for Roadix production - populates all sections with demo data.
  * Usage: node seed-production.mjs https://roadix-full-v2.onrender.com
  */
 
 const API = (process.argv[2] || 'https://roadix-full-v2.onrender.com') + '/api';
 let TOKEN = '';
+const ADMIN_LOGIN = 'admin';
+const ADMIN_EMAIL = 'admin@roadix.cl';
+const ADMIN_PASSWORD = '1234';
+const LEGACY_ADMIN_PASSWORD = 'Admin123!';
 
 async function post(path, body) {
   const res = await fetch(`${API}${path}`, {
@@ -46,32 +49,60 @@ async function patch(path, body) {
   return { status: res.status, data };
 }
 
+async function tryAdminLogin(email, password) {
+  const result = await post('/auth/login', { email, password });
+  return result.data?.accessToken ? result : null;
+}
+
+async function loginAdminWithCurrentPassword() {
+  return (
+    await tryAdminLogin(ADMIN_LOGIN, ADMIN_PASSWORD)
+    ?? await tryAdminLogin(ADMIN_EMAIL, ADMIN_PASSWORD)
+  );
+}
+
+async function loginAdminWithLegacyPassword() {
+  return (
+    await tryAdminLogin(ADMIN_LOGIN, LEGACY_ADMIN_PASSWORD)
+    ?? await tryAdminLogin(ADMIN_EMAIL, LEGACY_ADMIN_PASSWORD)
+  );
+}
+
 // â”€â”€â”€ 1. Register admin taller â”€â”€â”€
 async function seedAdmin() {
   console.log('\nâ•â•â• 1. ADMIN â•â•â•');
-  // Try register first
-  let r = await post('/auth/register', {
-    taller_nombre: 'Taller Automotriz Roadix Demo',
-    taller_rut: '76.543.210-K',
-    nombre: 'Administrador',
-    email: 'admin@roadix.cl',
-    password: '1234',
-  });
-  // If already exists, login
-  if (r.status === 409) {
-    r = await post('/auth/login', { email: 'admin@roadix.cl', password: '1234' });
-    if (r.status !== 200) {
-      // Try old password
-      r = await post('/auth/login', { email: 'admin@roadix.cl', password: 'Admin123!' });
-      if (r.status === 200) {
-        TOKEN = r.data.accessToken;
-        // Change password to 1234
-        await post('/auth/change-password', { currentPassword: 'Admin123!', newPassword: '1234' });
-        console.log('  â†’ Password changed to 1234');
-      }
+  let authResult = await loginAdminWithCurrentPassword();
+
+  if (!authResult) {
+    const legacyAuthResult = await loginAdminWithLegacyPassword();
+    if (legacyAuthResult) {
+      TOKEN = legacyAuthResult.data.accessToken;
+      await post('/auth/change-password', {
+        currentPassword: LEGACY_ADMIN_PASSWORD,
+        newPassword: ADMIN_PASSWORD,
+      });
+      console.log('  → Password changed to 1234');
+      authResult = await loginAdminWithCurrentPassword();
     }
   }
-  if (r.data?.accessToken) TOKEN = r.data.accessToken;
+
+  if (!authResult) {
+    const registerResult = await post('/auth/register', {
+      taller_nombre: 'Taller Automotriz Roadix Demo',
+      taller_rut: '76.543.210-K',
+      nombre: 'Admin',
+      email: ADMIN_EMAIL,
+      password: ADMIN_PASSWORD,
+    });
+
+    if (registerResult.data?.accessToken) {
+      authResult = registerResult;
+    } else {
+      authResult = await loginAdminWithCurrentPassword();
+    }
+  }
+
+  TOKEN = authResult?.data?.accessToken ?? '';
   if (!TOKEN) { console.error('FATAL: could not authenticate'); process.exit(1); }
 
   // Update taller info
@@ -443,7 +474,7 @@ async function main() {
   await seedFacturas(ordenes);
 
   console.log('\nâœ… Seed complete!');
-  console.log('   Admin login: admin@roadix.cl / 1234');
+  console.log('   Admin login: admin / 1234');
   console.log('   All other users password: 1234\n');
 }
 

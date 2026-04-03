@@ -41,10 +41,31 @@ export class AuthService {
     private readonly emailService: EmailService,
   ) {}
 
-  async login(dto: LoginDto) {
-    const user = await this.usuarioRepo.findOne({
-      where: { email: dto.email, activo: true },
+  private async findLoginUser(identifier: string) {
+    const normalizedIdentifier = identifier.trim();
+    const loweredIdentifier = normalizedIdentifier.toLowerCase();
+
+    if (loweredIdentifier === 'admin' || loweredIdentifier === 'admin@roadix.cl') {
+      const adminUser = await this.usuarioRepo.findOne({
+        where: { email: 'admin', activo: true },
+      });
+
+      if (adminUser) {
+        return adminUser;
+      }
+
+      return this.usuarioRepo.findOne({
+        where: { email: 'admin@roadix.cl', activo: true },
+      });
+    }
+
+    return this.usuarioRepo.findOne({
+      where: { email: normalizedIdentifier, activo: true },
     });
+  }
+
+  async login(dto: LoginDto) {
+    const user = await this.findLoginUser(dto.email);
     if (!user) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
