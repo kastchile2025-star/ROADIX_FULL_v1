@@ -21,7 +21,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
   const [options, setOptions] = useState<ConfirmOptions>({
     message: '',
   });
-  const resolveRef = useRef<(v: boolean) => void>();
+  const resolveRef = useRef<((v: boolean) => void) | null>(null);
 
   const confirm: ConfirmFn = useCallback((opts) => {
     setOptions(opts);
