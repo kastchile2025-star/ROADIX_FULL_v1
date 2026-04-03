@@ -32,7 +32,7 @@ const DEMO_PLANS: Array<Omit<Plan, 'id' | 'created_at' | 'suscripciones'>> = [
     precio_anual: 0,
     max_usuarios: 2,
     max_ots_mes: 15,
-    max_vehiculos: 50,
+    max_vehiculos: 10,
     max_storage_mb: 1024,
     tiene_facturacion: false,
     tiene_whatsapp: false,

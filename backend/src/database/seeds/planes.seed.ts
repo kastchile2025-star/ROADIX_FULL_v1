@@ -24,7 +24,7 @@ export async function seedPlanes(dataSource: DataSource) {
       precio_anual: 0,
       max_usuarios: 2,
       max_ots_mes: 5,
-      max_vehiculos: 50,
+      max_vehiculos: 10,
       max_storage_mb: 500,
       tiene_facturacion: false,
       tiene_whatsapp: false,
