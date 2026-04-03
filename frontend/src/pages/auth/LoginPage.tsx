@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -50,8 +51,18 @@ export default function LoginPage() {
         res.refreshToken,
       );
       navigate('/');
-    } catch {
-      setError(t('login.errorInvalid'));
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.code === 'ECONNABORTED') {
+          setError(t('login.errorTimeout'));
+        } else if (error.response?.status === 401) {
+          setError(t('login.errorInvalid'));
+        } else {
+          setError(t('login.errorServer'));
+        }
+      } else {
+        setError(t('login.errorServer'));
+      }
     } finally {
       setLoading(false);
     }

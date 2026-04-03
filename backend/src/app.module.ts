@@ -30,6 +30,7 @@ import { PortalClienteModule } from './modules/portal-cliente/portal-cliente.mod
 import { ReportesModule } from './modules/reportes/reportes.module.js';
 import { ArchivosModule } from './modules/archivos/archivos.module.js';
 import { FlowModule } from './modules/flow/flow.module.js';
+import { resolveDatabaseSsl } from './config/database-ssl.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -50,7 +51,10 @@ const __dirname = dirname(__filename);
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
         synchronize: true,
-        ssl: config.get<string>('NODE_ENV') === 'production' ? { rejectUnauthorized: false } : false,
+        ssl: resolveDatabaseSsl(
+          config.get<string>('DB_HOST', 'localhost'),
+          config.get<string>('DB_SSL'),
+        ),
       }),
     }),
     BullModule.forRootAsync({

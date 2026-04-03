@@ -76,19 +76,67 @@ export default function BillingPage() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
 
+  const isNotFoundError = (error: unknown) =>
+    typeof error === 'object'
+    && error !== null
+    && 'response' in error
+    && (error as { response?: { status?: number } }).response?.status === 404;
+
   const load = async () => {
     try {
-      const [p, s, u, h] = await Promise.all([
+      const [planesResult, suscripcionResult, usageResult, pagosResult] = await Promise.allSettled([
         billingService.getPlanes(),
         billingService.getMiSuscripcion(),
         billingService.getUsage(),
         billingService.getHistorialPagos(),
       ]);
-      setPlanes(p);
-      setSuscripcion(s);
-      setUsage(u);
-      setPagos(h);
-      if (s?.periodo) setPeriodo(s.periodo);
+
+      let shouldShowError = false;
+
+      if (planesResult.status === 'fulfilled') {
+        setPlanes(planesResult.value);
+      } else {
+        shouldShowError = true;
+      }
+
+      if (
+        suscripcionResult.status === 'fulfilled'
+        && suscripcionResult.value
+        && typeof suscripcionResult.value === 'object'
+      ) {
+        const nextSuscripcion = suscripcionResult.value as Suscripcion;
+        setSuscripcion(nextSuscripcion);
+        if (nextSuscripcion.periodo) {
+          setPeriodo(nextSuscripcion.periodo);
+        }
+      } else {
+        setSuscripcion(null);
+        if (suscripcionResult.status === 'rejected' && !isNotFoundError(suscripcionResult.reason)) {
+          shouldShowError = true;
+        }
+      }
+
+      if (usageResult.status === 'fulfilled') {
+        setUsage(usageResult.value);
+      } else {
+        setUsage(null);
+        if (!isNotFoundError(usageResult.reason)) {
+          shouldShowError = true;
+        }
+      }
+
+      if (pagosResult.status === 'fulfilled') {
+        setPagos(pagosResult.value);
+      } else {
+        setPagos([]);
+        if (!isNotFoundError(pagosResult.reason)) {
+          shouldShowError = true;
+        }
+      }
+
+      if (shouldShowError) {
+        toast.error(t('billing.toastErrorCargar'));
+      }
     } catch {
       toast.error(t('billing.toastErrorCargar'));
     } finally {

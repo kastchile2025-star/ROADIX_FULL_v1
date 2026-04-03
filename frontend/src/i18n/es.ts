@@ -41,6 +41,8 @@ export const es: Record<string, string> = {
   'login.themeDark': 'Modo oscuro',
   'login.themeLight': 'Modo claro',
   'login.errorInvalid': 'Credenciales inválidas',
+  'login.errorTimeout': 'La autenticación tardó demasiado. Intenta nuevamente.',
+  'login.errorServer': 'No fue posible iniciar sesión en este momento.',
   'login.valUserRequired': 'Usuario requerido',
   'login.valPasswordRequired': 'Contraseña requerida',
 

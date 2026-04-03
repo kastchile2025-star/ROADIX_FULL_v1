@@ -105,9 +105,10 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const hoy = new Date();
-    const hace30 = new Date();
-    hace30.setDate(hoy.getDate() - 30);
-    const desde = hace30.toISOString().split('T')[0];
+    const hace18Meses = new Date();
+    hace18Meses.setMonth(hace18Meses.getMonth() - 18);
+    hace18Meses.setDate(1);
+    const desde = hace18Meses.toISOString().split('T')[0];
     const hasta = hoy.toISOString().split('T')[0];
 
     reportesService.resumenDiario().then(setResumen).catch(() => {});

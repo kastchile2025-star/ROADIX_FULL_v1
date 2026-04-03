@@ -47,6 +47,13 @@ function formatCurrency(value: number) {
   return `$${Number(value ?? 0).toLocaleString('es-CL')}`;
 }
 
+function getDefaultReportStartDate() {
+  const date = new Date();
+  date.setMonth(date.getMonth() - 18);
+  date.setDate(1);
+  return date.toISOString().split('T')[0];
+}
+
 export default function ReportesPage() {
   const { t } = useI18n();
 
@@ -66,12 +73,9 @@ export default function ReportesPage() {
     { key: 'inventario', label: t('reportes.tabRotacionStock'), icon: Package },
   ];
   const [activeTab, setActiveTab] = useState<Tab>('ingresos');
-  const [desde, setDesde] = useState(() => {
-    const d = new Date(); d.setMonth(d.getMonth() - 1);
-    return d.toISOString().split('T')[0];
-  });
+  const [desde, setDesde] = useState(getDefaultReportStartDate);
   const [hasta, setHasta] = useState(() => new Date().toISOString().split('T')[0]);
-  const [agrupacion, setAgrupacion] = useState<'dia' | 'semana' | 'mes'>('dia');
+  const [agrupacion, setAgrupacion] = useState<'dia' | 'semana' | 'mes'>('mes');
 
   const [ingresos, setIngresos] = useState<IngresoPeriodo[]>([]);
   const [otsPorEstado, setOtsPorEstado] = useState<OtsPorEstado[]>([]);
