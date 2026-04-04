@@ -564,7 +564,7 @@ export default function BillingPage() {
                 <Button className="w-full" disabled>
                   {t('billing.planActualBtn')}
                 </Button>
-              ) : currentPlan && currentPlan.precio_mensual > 0 && plan.precio_mensual === 0 ? (
+              ) : currentPlan && currentPlan.nombre !== 'free' && plan.nombre === 'free' ? (
                 <div className="text-center">
                   <Button className="w-full" disabled>
                     {t('billing.seleccionar')}
