@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ROADIX | Planes y Precios — Desde Gratis hasta Enterprise</title>
-    <meta name="description" content="Planes y suscripciÃ³n de ROADIX: Free, Starter, Pro y Enterprise con lÃ­mites, funcionalidades y enfoque comercial para talleres automotrices." />
+    <meta name="description" content="Planes y suscripción de ROADIX: Free, Starter ($25.990/mes), Pro ($59.990/mes) y Enterprise. Funcionalidades y precios para talleres automotrices en Chile." />
+    <meta name="keywords" content="precios software taller, planes ROADIX, suscripción taller mecánico, software gestión taller precio, SaaS taller Chile" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
@@ -24,37 +25,63 @@
     <meta name="twitter:title" content="ROADIX — Planes y Precios para Talleres" />
     <meta name="twitter:description" content="Planes desde $0: Free, Starter, Pro y Enterprise para talleres automotrices en Chile." />
     <meta name="twitter:image" content="https://www.roadix.cl/og-image.png" />
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "ROADIX",
+      "description": "Software de gestión para talleres automotrices en Chile",
+      "brand": { "@type": "Brand", "name": "ROADIX" },
+      "offers": [
+        { "@type": "Offer", "name": "Plan Free", "priceCurrency": "CLP", "price": "0", "description": "2 usuarios, 5 OTs/mes, 10 vehículos" },
+        { "@type": "Offer", "name": "Plan Starter", "priceCurrency": "CLP", "price": "25990", "description": "3 usuarios, 100 OTs/mes, 200 vehículos, portal del cliente" },
+        { "@type": "Offer", "name": "Plan Pro", "priceCurrency": "CLP", "price": "59990", "description": "15 usuarios, OTs ilimitadas, WhatsApp, reportes avanzados" },
+        { "@type": "Offer", "name": "Plan Enterprise", "priceCurrency": "CLP", "price": "0", "description": "Usuarios ilimitados, todas las funcionalidades, API access" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://www.roadix.cl/" },
+        { "@type": "ListItem", "position": 2, "name": "Planes y Precios", "item": "https://www.roadix.cl/benefits" }
+      ]
+    }
+    </script>
   </head>
   <body data-theme="dark" data-page="benefits">
     <div class="site-shell">
       <header class="topbar">
-        <a class="brand" href="./index.html" aria-label="Ir al inicio de ROADIX"><svg class="brand-logo" viewBox="0 0 280 44" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="1" y="2" width="40" height="40" rx="11" fill="rgba(43,190,249,0.08)" stroke="#2bbef9" stroke-width="1.5"/><path d="M11 30 A12 12 0 1 1 31 30" fill="none" stroke="#2bbef9" stroke-width="2.2" stroke-linecap="round"/><line x1="21" y1="27" x2="28" y2="16" stroke="#ffb648" stroke-width="2.2" stroke-linecap="round"/><circle cx="21" cy="27" r="2.2" fill="#ffb648"/><line x1="11" y1="33" x2="31" y2="33" stroke="#2bbef9" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/><text x="50" y="23" font-family="'Rajdhani',sans-serif" font-weight="700" font-size="24" fill="currentColor" letter-spacing="1.5">ROADIX</text><text x="50" y="38" font-family="'Manrope',sans-serif" font-weight="600" font-size="7.5" fill="#ffb648" letter-spacing="1.2" data-i18n="brand.subtitle">GESTIÃ“N DE TALLERES EN LA NUBE</text></svg></a>
+        <a class="brand" href="./index.html" aria-label="Ir al inicio de ROADIX"><svg class="brand-logo" viewBox="0 0 280 44" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="1" y="2" width="40" height="40" rx="11" fill="rgba(43,190,249,0.08)" stroke="#2bbef9" stroke-width="1.5"/><path d="M11 30 A12 12 0 1 1 31 30" fill="none" stroke="#2bbef9" stroke-width="2.2" stroke-linecap="round"/><line x1="21" y1="27" x2="28" y2="16" stroke="#ffb648" stroke-width="2.2" stroke-linecap="round"/><circle cx="21" cy="27" r="2.2" fill="#ffb648"/><line x1="11" y1="33" x2="31" y2="33" stroke="#2bbef9" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/><text x="50" y="23" font-family="'Rajdhani',sans-serif" font-weight="700" font-size="24" fill="currentColor" letter-spacing="1.5">ROADIX</text><text x="50" y="38" font-family="'Manrope',sans-serif" font-weight="600" font-size="7.5" fill="#ffb648" letter-spacing="1.2" data-i18n="brand.subtitle">GESTIÓN DE TALLERES EN LA NUBE</text></svg></a>
         <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="main-nav"><span></span><span></span><span></span></button>
-        <nav id="main-nav" class="main-nav"><a href="./index.html" data-nav="home" data-i18n="nav.home">Home</a><a href="./identity.html" data-nav="identity" data-i18n="nav.identity">Nosotros</a><a href="./modules.html" data-nav="modules" data-i18n="nav.modules">MÃ³dulos</a><a href="./benefits.html" data-nav="benefits" data-i18n="nav.benefits">Planes</a><a href="./demo.html" data-nav="demo" data-i18n="nav.demo">Demo</a><a class="nav-dashboard" href="/app" data-i18n="nav.dashboard">Dashboard</a></nav>
+        <nav id="main-nav" class="main-nav"><a href="./index.html" data-nav="home" data-i18n="nav.home">Home</a><a href="./identity.html" data-nav="identity" data-i18n="nav.identity">Nosotros</a><a href="./modules.html" data-nav="modules" data-i18n="nav.modules">Módulos</a><a href="./benefits.html" data-nav="benefits" data-i18n="nav.benefits">Planes</a><a href="./demo.html" data-nav="demo" data-i18n="nav.demo">Demo</a><a class="nav-dashboard" href="/app" data-i18n="nav.dashboard">Dashboard</a></nav>
         <div class="topbar-actions"><button class="lang-toggle" type="button" data-lang-toggle aria-label="Toggle language">ES</button><button class="theme-toggle" type="button" aria-label="Cambiar tema"><span class="theme-toggle-icon">â—</span></button></div>
       </header>
       <main>
         <section class="page-hero reveal">
-          <p class="eyebrow" data-i18n="benefitsPage.eyebrow">Planes y suscripciÃ³n</p>
-          <h1 data-i18n="benefitsPage.title">SuscripciÃ³n ROADIX segÃºn el tamaÃ±o, ritmo y madurez del taller.</h1>
-          <p class="hero-text page-intro" data-i18n="benefitsPage.intro">La pÃ¡gina de beneficios pasa a una propuesta mÃ¡s comercial: aquÃ­ se muestran los planes reales del sistema, sus lÃ­mites, sus funcionalidades y el tipo de taller al que mejor se adaptan.</p>
+          <p class="eyebrow" data-i18n="benefitsPage.eyebrow">Planes y suscripción</p>
+          <h1 data-i18n="benefitsPage.title">Suscripción ROADIX según el tamaño, ritmo y madurez del taller.</h1>
+          <p class="hero-text page-intro" data-i18n="benefitsPage.intro">La página de beneficios pasa a una propuesta más comercial: aquí se muestran los planes reales del sistema, sus límites, sus funcionalidades y el tipo de taller al que mejor se adaptan.</p>
         </section>
 
         <section class="section pricing-overview">
           <div class="summary-grid reveal reveal-delay-1 pricing-summary-grid">
-            <article class="summary-card accent-card"><h3 data-i18n="benefitsPage.kpi1Title">Modelo SaaS</h3><p data-i18n="benefitsPage.kpi1Text">ROADIX se ofrece como suscripciÃ³n mensual o anual, con escalamiento por nivel de operaciÃ³n.</p></article>
-            <article class="summary-card accent-card"><h3 data-i18n="benefitsPage.kpi2Title">LÃ­mites claros</h3><p data-i18n="benefitsPage.kpi2Text">Cada plan define usuarios, vehÃ­culos, Ã³rdenes por mes y capacidad de almacenamiento.</p></article>
-            <article class="summary-card accent-card"><h3 data-i18n="benefitsPage.kpi3Title">Funcionalidad progresiva</h3><p data-i18n="benefitsPage.kpi3Text">FacturaciÃ³n, portal cliente, WhatsApp, reportes y API se habilitan segÃºn el nivel contratado.</p></article>
+            <article class="summary-card accent-card"><h3 data-i18n="benefitsPage.kpi1Title">Modelo SaaS</h3><p data-i18n="benefitsPage.kpi1Text">ROADIX se ofrece como suscripción mensual o anual, con escalamiento por nivel de operación.</p></article>
+            <article class="summary-card accent-card"><h3 data-i18n="benefitsPage.kpi2Title">Límites claros</h3><p data-i18n="benefitsPage.kpi2Text">Cada plan define usuarios, vehículos, órdenes por mes y capacidad de almacenamiento.</p></article>
+            <article class="summary-card accent-card"><h3 data-i18n="benefitsPage.kpi3Title">Funcionalidad progresiva</h3><p data-i18n="benefitsPage.kpi3Text">Facturación, portal cliente, WhatsApp, reportes y API se habilitan según el nivel contratado.</p></article>
           </div>
         </section>
 
         <section class="section pricing-section">
           <div class="section-heading reveal compact-heading">
             <p class="eyebrow" data-i18n="pricing.eyebrow">Planes disponibles</p>
-            <h2 data-i18n="pricing.title">Cuatro niveles para crecer desde un taller pequeÃ±o hasta una operaciÃ³n multisede.</h2>
-            <p data-i18n="pricing.intro">Los valores y lÃ­mites se basan en la configuraciÃ³n real del proyecto ROADIX.</p>
+            <h2 data-i18n="pricing.title">Cuatro niveles para crecer desde un taller pequeño hasta una operación multisede.</h2>
+            <p data-i18n="pricing.intro">Los valores y límites se basan en la configuración real del proyecto ROADIX.</p>
           </div>
-          <div class="billing-toggle reveal reveal-delay-1" role="tablist" aria-label="Periodo de facturaciÃ³n">
+          <div class="billing-toggle reveal reveal-delay-1" role="tablist" aria-label="Periodo de facturación">
             <button class="billing-toggle-btn is-active" type="button" data-billing-period="monthly" data-i18n="pricing.monthlyLabel">Mensual</button>
             <button class="billing-toggle-btn" type="button" data-billing-period="annual" data-i18n="pricing.annualLabel">Anual</button>
             <span class="billing-discount-badge" data-i18n="pricing.annualBadge">10% de descuento anual</span>
@@ -65,13 +92,13 @@
               <h3 data-i18n="pricing.freeTitle">Plan Free</h3>
                 <div class="price-stack"><strong data-price-value>$0</strong><span data-price-suffix data-i18n="pricing.perMonth">/mes</span></div>
                 <p class="pricing-annual" data-price-note data-i18n="pricing.freeNote">Siempre gratis</p>
-              <p class="pricing-subcopy" data-i18n="pricing.freeText">Para talleres que estÃ¡n validando su operaciÃ³n digital y necesitan una entrada simple.</p>
+              <p class="pricing-subcopy" data-i18n="pricing.freeText">Para talleres que están validando su operación digital y necesitan una entrada simple.</p>
               <ul class="pricing-features">
                 <li data-i18n="pricing.freeF1">2 usuarios</li>
                 <li data-i18n="pricing.freeF2">5 OTs por mes</li>
-                <li data-i18n="pricing.freeF3">10 vehÃ­culos</li>
+                <li data-i18n="pricing.freeF3">10 vehículos</li>
                 <li data-i18n="pricing.freeF4">500 MB de almacenamiento</li>
-                <li data-i18n="pricing.freeF5">Sin facturaciÃ³n, portal, WhatsApp, reportes ni API</li>
+                <li data-i18n="pricing.freeF5">Sin facturación, portal, WhatsApp, reportes ni API</li>
               </ul>
             </article>
 
@@ -79,14 +106,14 @@
               <p class="panel-label" data-i18n="pricing.starterLabel">Starter</p>
               <h3 data-i18n="pricing.starterTitle">Plan Starter</h3>
               <div class="price-stack"><strong data-price-value>$25.990</strong><span data-price-suffix data-i18n="pricing.perMonth">/mes</span></div>
-              <p class="pricing-annual" data-price-note data-i18n="pricing.discountHint">Si compras el aÃ±o obtienes 10% de descuento.</p>
+              <p class="pricing-annual" data-price-note data-i18n="pricing.discountHint">Si compras el año obtienes 10% de descuento.</p>
               <p class="pricing-subcopy" data-i18n="pricing.starterText">Pensado para talleres en crecimiento que ya necesitan control formal y experiencia cliente.</p>
               <ul class="pricing-features">
                 <li data-i18n="pricing.starterF1">3 usuarios</li>
                 <li data-i18n="pricing.starterF2">100 OTs por mes</li>
-                <li data-i18n="pricing.starterF3">200 vehÃ­culos</li>
+                <li data-i18n="pricing.starterF3">200 vehículos</li>
                 <li data-i18n="pricing.starterF4">2 GB de almacenamiento</li>
-                <li data-i18n="pricing.starterF5">Incluye facturaciÃ³n y portal cliente</li>
+                <li data-i18n="pricing.starterF5">Incluye facturación y portal cliente</li>
               </ul>
             </article>
 
@@ -94,14 +121,14 @@
               <p class="panel-label" data-i18n="pricing.proLabel">Pro</p>
               <h3 data-i18n="pricing.proTitle">Plan Pro</h3>
               <div class="price-stack"><strong data-price-value>$59.990</strong><span data-price-suffix data-i18n="pricing.perMonth">/mes</span></div>
-              <p class="pricing-annual" data-price-note data-i18n="pricing.discountHint">Si compras el aÃ±o obtienes 10% de descuento.</p>
-              <p class="pricing-subcopy" data-i18n="pricing.proText">La opciÃ³n mÃ¡s equilibrada para talleres que operan con volumen y necesitan visiÃ³n gerencial.</p>
+              <p class="pricing-annual" data-price-note data-i18n="pricing.discountHint">Si compras el año obtienes 10% de descuento.</p>
+              <p class="pricing-subcopy" data-i18n="pricing.proText">La opción más equilibrada para talleres que operan con volumen y necesitan visión gerencial.</p>
               <ul class="pricing-features">
                 <li data-i18n="pricing.proF1">15 usuarios</li>
-                <li data-i18n="pricing.proF2">OTs y vehÃ­culos sin lÃ­mite prÃ¡ctico</li>
+                <li data-i18n="pricing.proF2">OTs y vehículos sin límite práctico</li>
                 <li data-i18n="pricing.proF3">50 GB de almacenamiento</li>
                 <li data-i18n="pricing.proF4">Portal y reportes</li>
-                <li data-i18n="pricing.proF5">Ideal para talleres con operaciÃ³n constante y foco comercial</li>
+                <li data-i18n="pricing.proF5">Ideal para talleres con operación constante y foco comercial</li>
               </ul>
             </article>
 
@@ -109,12 +136,12 @@
               <p class="panel-label" data-i18n="pricing.enterpriseLabel">Enterprise</p>
               <h3 data-i18n="pricing.enterpriseTitle">Plan Enterprise</h3>
               <div class="price-stack"><strong data-price-value data-i18n="pricing.enterprisePrice">A medida</strong><span data-price-suffix hidden></span></div>
-              <p class="pricing-annual" data-price-note data-i18n="pricing.enterpriseNote">CotizaciÃ³n personalizada segÃºn alcance y operaciÃ³n.</p>
-              <p class="pricing-subcopy" data-i18n="pricing.enterpriseText">Para operaciones avanzadas, cadenas, grupos o necesidades de integraciÃ³n y despliegue corporativo.</p>
+              <p class="pricing-annual" data-price-note data-i18n="pricing.enterpriseNote">Cotización personalizada según alcance y operación.</p>
+              <p class="pricing-subcopy" data-i18n="pricing.enterpriseText">Para operaciones avanzadas, cadenas, grupos o necesidades de integración y despliegue corporativo.</p>
               <ul class="pricing-features">
-                <li data-i18n="pricing.enterpriseF1">Usuarios, OTs, vehÃ­culos y storage ampliados</li>
-                <li data-i18n="pricing.enterpriseF2">Incluye facturaciÃ³n, WhatsApp, portal, reportes y API</li>
-                <li data-i18n="pricing.enterpriseF3">Soporte comercial para implementaciÃ³n personalizada</li>
+                <li data-i18n="pricing.enterpriseF1">Usuarios, OTs, vehículos y storage ampliados</li>
+                <li data-i18n="pricing.enterpriseF2">Incluye facturación, WhatsApp, portal, reportes y API</li>
+                <li data-i18n="pricing.enterpriseF3">Soporte comercial para implementación personalizada</li>
                 <li data-i18n="pricing.enterpriseF4">Orientado a operaciones multi-taller o roadmap corporativo</li>
               </ul>
             </article>
@@ -123,25 +150,25 @@
 
         <section class="section comparison-section">
           <div class="section-heading reveal compact-heading">
-            <p class="eyebrow" data-i18n="pricing.compareEyebrow">QuÃ© activa cada plan</p>
-            <h2 data-i18n="pricing.compareTitle">La suscripciÃ³n tambiÃ©n define la profundidad funcional del producto.</h2>
+            <p class="eyebrow" data-i18n="pricing.compareEyebrow">Qué activa cada plan</p>
+            <h2 data-i18n="pricing.compareTitle">La suscripción también define la profundidad funcional del producto.</h2>
           </div>
           <div class="summary-grid reveal reveal-delay-1">
-            <article class="summary-card accent-card"><h3 data-i18n="pricing.compare1Title">FacturaciÃ³n</h3><p data-i18n="pricing.compare1Text">Disponible desde Starter en adelante para profesionalizar cobros y soporte administrativo.</p></article>
-            <article class="summary-card accent-card"><h3 data-i18n="pricing.compare2Title">Portal y comunicaciÃ³n</h3><p data-i18n="pricing.compare2Text">El portal cliente aparece desde Starter, mientras que WhatsApp se incorpora en Pro y Enterprise.</p></article>
-            <article class="summary-card accent-card"><h3 data-i18n="pricing.compare3Title">VisiÃ³n gerencial</h3><p data-i18n="pricing.compare3Text">Los reportes se habilitan en Pro y Enterprise para talleres que ya gestionan con KPIs y seguimiento.</p></article>
+            <article class="summary-card accent-card"><h3 data-i18n="pricing.compare1Title">Facturación</h3><p data-i18n="pricing.compare1Text">Disponible desde Starter en adelante para profesionalizar cobros y soporte administrativo.</p></article>
+            <article class="summary-card accent-card"><h3 data-i18n="pricing.compare2Title">Portal y comunicación</h3><p data-i18n="pricing.compare2Text">El portal cliente aparece desde Starter, mientras que WhatsApp se incorpora en Pro y Enterprise.</p></article>
+            <article class="summary-card accent-card"><h3 data-i18n="pricing.compare3Title">Visión gerencial</h3><p data-i18n="pricing.compare3Text">Los reportes se habilitan en Pro y Enterprise para talleres que ya gestionan con KPIs y seguimiento.</p></article>
           </div>
         </section>
 
         <section class="section metrics-section">
           <div class="section-heading reveal compact-heading">
-            <p class="eyebrow" data-i18n="benefitsPage.extraEyebrow">Por quÃ© esta suscripciÃ³n genera valor</p>
+            <p class="eyebrow" data-i18n="benefitsPage.extraEyebrow">Por qué esta suscripción genera valor</p>
             <h2 data-i18n="benefitsPage.extraTitle">Los beneficios siguen presentes, pero ahora conectados al modelo comercial de ROADIX.</h2>
           </div>
           <div class="summary-grid reveal reveal-delay-1">
-            <article class="summary-card accent-card"><h3 data-i18n="benefits.extra1Title">Menos fricciÃ³n interna</h3><p data-i18n="benefits.extra1Text">El equipo trabaja sobre una sola fuente de verdad y reduce pÃ©rdidas de tiempo entre consultas, llamadas y papeles.</p></article>
-            <article class="summary-card accent-card"><h3 data-i18n="benefits.extra2Title">MÃ¡s confianza externa</h3><p data-i18n="benefits.extra2Text">El cliente percibe orden, seguimiento y profesionalismo en cada contacto con el taller.</p></article>
-            <article class="summary-card accent-card"><h3 data-i18n="benefits.extra3Title">Mejor base comercial</h3><p data-i18n="benefits.extra3Text">La soluciÃ³n se puede presentar como inversiÃ³n operativa con impacto en imagen, eficiencia y crecimiento.</p></article>
+            <article class="summary-card accent-card"><h3 data-i18n="benefits.extra1Title">Menos fricción interna</h3><p data-i18n="benefits.extra1Text">El equipo trabaja sobre una sola fuente de verdad y reduce pérdidas de tiempo entre consultas, llamadas y papeles.</p></article>
+            <article class="summary-card accent-card"><h3 data-i18n="benefits.extra2Title">Más confianza externa</h3><p data-i18n="benefits.extra2Text">El cliente percibe orden, seguimiento y profesionalismo en cada contacto con el taller.</p></article>
+            <article class="summary-card accent-card"><h3 data-i18n="benefits.extra3Title">Mejor base comercial</h3><p data-i18n="benefits.extra3Text">La solución se puede presentar como inversión operativa con impacto en imagen, eficiencia y crecimiento.</p></article>
           </div>
         </section>
       </main>
@@ -154,7 +181,7 @@
         </div>
       </footer>
     </div>
-    <script src="./script.js"></script>
+    <script src="./script.js" defer></script>
   </body>
 </html>
 

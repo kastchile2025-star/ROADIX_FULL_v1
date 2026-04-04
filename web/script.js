@@ -758,7 +758,7 @@ function setActiveTab(target) {
   });
   tabPanels.forEach((panel) => {
     const isActive = panel.dataset.tabPanel === target;
-    panel.hidden = !isActive;
+    panel.style.display = isActive ? '' : 'none';
     panel.classList.toggle('is-active', isActive);
   });
 }
