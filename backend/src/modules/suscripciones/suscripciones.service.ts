@@ -14,6 +14,7 @@ import { HistorialPagoSuscripcion } from '../../database/entities/historial-pago
 import { Usuario } from '../../database/entities/usuario.entity.js';
 import { Vehiculo } from '../../database/entities/vehiculo.entity.js';
 import { OrdenTrabajo } from '../../database/entities/orden-trabajo.entity.js';
+import { Taller } from '../../database/entities/taller.entity.js';
 import {
   SuscripcionEstado,
   SuscripcionPeriodo,
@@ -73,6 +74,8 @@ export class SuscripcionesService {
     private readonly vehiculoRepo: Repository<Vehiculo>,
     @InjectRepository(OrdenTrabajo)
     private readonly otRepo: Repository<OrdenTrabajo>,
+    @InjectRepository(Taller)
+    private readonly tallerRepo: Repository<Taller>,
     @Inject(forwardRef(() => FlowService))
     private readonly flowService: FlowService,
     private readonly emailService: EmailService,
@@ -515,6 +518,81 @@ export class SuscripcionesService {
 
     if (dto.fecha_fin) {
       suscripcion.fecha_fin = new Date(dto.fecha_fin);
+    }
+
+    return this.suscripcionRepo.save(suscripcion);
+  }
+
+  /** Superadmin: list all talleres with users and subscription info */
+  async getAllTalleresAdmin() {
+    const talleres = await this.tallerRepo.find({
+      relations: ['usuarios', 'suscripciones', 'suscripciones.plan'],
+      order: { created_at: 'DESC' },
+    });
+
+    return talleres.map((t) => {
+      const sub = t.suscripciones
+        ?.sort(
+          (a: Suscripcion, b: Suscripcion) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+        )[0] ?? null;
+
+      return {
+        id: t.id,
+        nombre: t.nombre,
+        rut: t.rut,
+        telefono: t.telefono,
+        created_at: t.created_at,
+        usuarios: (t.usuarios ?? []).map((u: Usuario) => ({
+          id: u.id,
+          nombre: u.nombre,
+          email: u.email,
+          rol: u.rol,
+          telefono: u.telefono,
+          activo: u.activo,
+          created_at: u.created_at,
+        })),
+        suscripcion: sub
+          ? {
+              id: sub.id,
+              plan_nombre: sub.plan?.nombre ?? 'sin-plan',
+              periodo: sub.periodo,
+              estado: sub.estado,
+              fecha_inicio: sub.fecha_inicio,
+              fecha_fin: sub.fecha_fin,
+              trial_hasta: sub.trial_hasta,
+              proximo_cobro: sub.proximo_cobro,
+              auto_renovar: sub.auto_renovar,
+              cancelado_at: sub.cancelado_at,
+            }
+          : null,
+      };
+    });
+  }
+
+  /** Superadmin: edit any taller's subscription */
+  async editarSuscripcionAdmin(
+    tallerId: number,
+    dto: { periodo?: string; fecha_fin?: string; estado?: string },
+  ) {
+    const suscripcion = await this.suscripcionRepo.findOne({
+      where: { taller_id: tallerId },
+      relations: ['plan'],
+      order: { created_at: 'DESC' },
+    });
+    if (!suscripcion) throw new NotFoundException('Suscripción no encontrada para este taller');
+
+    if (dto.periodo && ['mensual', 'anual'].includes(dto.periodo)) {
+      suscripcion.periodo = dto.periodo as SuscripcionPeriodo;
+    }
+    if (dto.fecha_fin) {
+      suscripcion.fecha_fin = new Date(dto.fecha_fin);
+    }
+    if (dto.estado) {
+      const validStates = Object.values(SuscripcionEstado) as string[];
+      if (validStates.includes(dto.estado)) {
+        suscripcion.estado = dto.estado as SuscripcionEstado;
+      }
     }
 
     return this.suscripcionRepo.save(suscripcion);

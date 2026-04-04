@@ -9,6 +9,7 @@ import { HistorialPagoSuscripcion } from '../../database/entities/historial-pago
 import { Usuario } from '../../database/entities/usuario.entity.js';
 import { Vehiculo } from '../../database/entities/vehiculo.entity.js';
 import { OrdenTrabajo } from '../../database/entities/orden-trabajo.entity.js';
+import { Taller } from '../../database/entities/taller.entity.js';
 import { FlowModule } from '../flow/flow.module.js';
 import { EmailModule } from '../email/email.module.js';
 
@@ -21,6 +22,7 @@ import { EmailModule } from '../email/email.module.js';
       Usuario,
       Vehiculo,
       OrdenTrabajo,
+      Taller,
     ]),
     forwardRef(() => FlowModule),
     EmailModule,

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Param, ParseIntPipe, UseGuards } from '@nestjs/common';
 import { SuscripcionesService } from './suscripciones.service.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { RolesGuard } from '../auth/guards/roles.guard.js';
@@ -70,5 +70,22 @@ export class SuscripcionesController {
     @Body() dto: { periodo?: string; fecha_fin?: string },
   ) {
     return this.suscripcionesService.editarSuscripcion(tallerId, dto);
+  }
+
+  // ── Superadmin: global management ──
+
+  @Get('admin/talleres')
+  @Roles(UserRole.SUPERADMIN)
+  getAllTalleres() {
+    return this.suscripcionesService.getAllTalleresAdmin();
+  }
+
+  @Put('admin/suscripcion/:tallerId')
+  @Roles(UserRole.SUPERADMIN)
+  editarSuscripcionAdmin(
+    @Param('tallerId', ParseIntPipe) tallerId: number,
+    @Body() dto: { periodo?: string; fecha_fin?: string; estado?: string },
+  ) {
+    return this.suscripcionesService.editarSuscripcionAdmin(tallerId, dto);
   }
 }

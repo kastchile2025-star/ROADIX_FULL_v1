@@ -839,6 +839,8 @@ export const es: Record<string, string> = {
 
   // ── Gestión Usuarios ──
   'gestionUsuarios.title': 'Gestión Usuarios',
+  'gestionUsuarios.talleres': 'talleres',
+  'gestionUsuarios.searchPlaceholder': 'Buscar taller, RUT, usuario, email...',
   'gestionUsuarios.suscripcion': 'Suscripción del Taller',
   'gestionUsuarios.editar': 'Editar',
   'gestionUsuarios.cancelar': 'Cancelar',
@@ -853,6 +855,7 @@ export const es: Record<string, string> = {
   'gestionUsuarios.anual': 'Anual',
   'gestionUsuarios.thNombre': 'Nombre',
   'gestionUsuarios.thEmail': 'Email',
+  'gestionUsuarios.thRol': 'Rol',
   'gestionUsuarios.thTelefono': 'Teléfono',
   'gestionUsuarios.thEstado': 'Estado',
   'gestionUsuarios.thCreado': 'Creado',

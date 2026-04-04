@@ -40,7 +40,7 @@ const links = [
   { to: '/billing', icon: CreditCard, key: 'sidebar.billing', adminOnly: true },
   { to: '/usuarios', icon: UserCog, key: 'sidebar.usuarios' },
   { to: '/configuracion', icon: Settings, key: 'sidebar.configuracion' },
-  { to: '/gestion-usuarios', icon: ShieldAlert, key: 'sidebar.gestionUsuarios', adminOnly: true, red: true },
+  { to: '/gestion-usuarios', icon: ShieldAlert, key: 'sidebar.gestionUsuarios', superadminOnly: true, red: true },
 ];
 
 interface SidebarProps {
@@ -54,7 +54,11 @@ const ADMIN_ROLES = ['superadmin', 'admin_taller'];
 export function Sidebar({ collapsed, onToggle, onTour }: SidebarProps) {
   const { t } = useI18n();
   const rol = useAuthStore((s) => s.user?.rol);
-  const visibleLinks = links.filter((l) => !l.adminOnly || ADMIN_ROLES.includes(rol ?? ''));
+  const visibleLinks = links.filter((l) => {
+    if (l.superadminOnly) return rol === 'superadmin';
+    if (l.adminOnly) return ADMIN_ROLES.includes(rol ?? '');
+    return true;
+  });
 
   return (
     <aside
