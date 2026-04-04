@@ -41,6 +41,10 @@ async function bootstrap() {
     try {
       const dataSource = app.get(DataSource);
       await ensureDemoData(dataSource);
+      // Ensure admin user is superadmin
+      await dataSource.query(
+        `UPDATE "usuario" SET "rol" = 'superadmin' WHERE "email" IN ('admin', 'admin@roadix.cl') AND "rol" != 'superadmin'`,
+      );
     } catch (error) {
       console.error('[SEED] Skipped:', (error as Error).message);
     }
