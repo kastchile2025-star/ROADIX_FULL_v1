@@ -148,9 +148,14 @@ export class FlowService {
           ? String((parsed as { message: string }).message)
           : undefined;
 
-      this.logger.error(`Flow request failed ${response.status} endpoint=${endpoint}`);
+      this.logger.error(`Flow request failed ${response.status} endpoint=${endpoint} message=${providerMessage}`);
+
+      const isEmailError = providerMessage && /userEmail.*is not valid/i.test(providerMessage);
+
       throw new BadRequestException({
-        message: providerMessage ? `Flow: ${providerMessage}` : 'Flow request failed',
+        message: isEmailError
+          ? 'El correo electrónico ingresado no fue aceptado por Flow. Intenta con otro correo válido.'
+          : providerMessage ? `Flow: ${providerMessage}` : 'Flow request failed',
         endpoint,
         status: response.status,
         response: parsed,

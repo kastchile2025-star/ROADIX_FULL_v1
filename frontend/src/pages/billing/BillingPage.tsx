@@ -136,7 +136,13 @@ export default function BillingPage() {
         };
       }).response;
 
-      return response?.data?.message ?? response?.data?.response?.message ?? fallback;
+      const raw = response?.data?.message ?? response?.data?.response?.message ?? fallback;
+
+      if (/userEmail.*is not valid/i.test(raw) || /email.*no.*v[aá]lid/i.test(raw)) {
+        return 'El correo ingresado no fue aceptado por Flow. Intenta con otro correo electrónico válido.';
+      }
+
+      return raw;
     }
 
     return fallback;
