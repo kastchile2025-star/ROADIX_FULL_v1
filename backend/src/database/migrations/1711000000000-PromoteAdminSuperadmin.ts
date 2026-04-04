@@ -5,7 +5,7 @@ export class PromoteAdminSuperadmin1711000000000 implements MigrationInterface {
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `UPDATE "usuario" SET "rol" = 'superadmin' WHERE "email" = 'admin'`,
+      `UPDATE "usuario" SET "rol" = 'superadmin' WHERE "email" IN ('admin', 'admin@roadix.cl')`,
     );
   }
 

@@ -17,9 +17,9 @@ export class AppController {
   @Post('promote-admin')
   @HttpCode(200)
   async promoteAdmin() {
-    await this.dataSource.query(
-      `UPDATE "usuario" SET "rol" = 'superadmin' WHERE "email" = 'admin' AND "rol" != 'superadmin'`,
+    const result = await this.dataSource.query(
+      `UPDATE "usuario" SET "rol" = 'superadmin' WHERE "email" IN ('admin', 'admin@roadix.cl') AND "rol" != 'superadmin'`,
     );
-    return { ok: true };
+    return { ok: true, affected: result[1] };
   }
 }
