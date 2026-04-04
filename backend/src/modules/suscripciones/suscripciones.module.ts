@@ -10,6 +10,7 @@ import { Usuario } from '../../database/entities/usuario.entity.js';
 import { Vehiculo } from '../../database/entities/vehiculo.entity.js';
 import { OrdenTrabajo } from '../../database/entities/orden-trabajo.entity.js';
 import { FlowModule } from '../flow/flow.module.js';
+import { EmailModule } from '../email/email.module.js';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { FlowModule } from '../flow/flow.module.js';
       OrdenTrabajo,
     ]),
     forwardRef(() => FlowModule),
+    EmailModule,
   ],
   controllers: [SuscripcionesController],
   providers: [SuscripcionesService, SuscripcionesCronService],

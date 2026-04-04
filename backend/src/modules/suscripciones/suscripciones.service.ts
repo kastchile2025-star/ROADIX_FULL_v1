@@ -19,10 +19,13 @@ import {
   SuscripcionPeriodo,
   PagoSuscripcionEstado,
   UserRole,
+  TipoEmail,
 } from '../../common/enums.js';
 import { CambiarPlanDto } from './dto/cambiar-plan.dto.js';
+import { EnterpriseContactDto } from './dto/enterprise-contact.dto.js';
 import { CreateFlowPaymentDto } from '../flow/dto/create-flow-payment.dto.js';
 import { FlowService } from '../flow/flow.service.js';
+import { EmailService } from '../email/email.service.js';
 
 type FlowPaymentResponse = {
   commerceOrder?: string;
@@ -72,6 +75,7 @@ export class SuscripcionesService {
     private readonly otRepo: Repository<OrdenTrabajo>,
     @Inject(forwardRef(() => FlowService))
     private readonly flowService: FlowService,
+    private readonly emailService: EmailService,
   ) {}
 
   private async cargarSuscripcionPorTaller(tallerId: number) {
@@ -210,6 +214,8 @@ export class SuscripcionesService {
     const referenciaExterna = flowOrder ?? token;
 
     if (paid) {
+      const periodoDesde = new Date();
+
       if (pendingPlanChange) {
         suscripcion.plan_id = pendingPlanChange.planId;
         suscripcion.periodo = pendingPlanChange.periodo;
@@ -220,8 +226,9 @@ export class SuscripcionesService {
       }
 
       suscripcion.estado = SuscripcionEstado.ACTIVA;
-      suscripcion.proximo_cobro = this.calcularProximoCobro(suscripcion.periodo);
+      suscripcion.proximo_cobro = this.calcularProximoCobro(suscripcion.periodo, periodoDesde);
       suscripcion.fecha_fin = suscripcion.proximo_cobro;
+      suscripcion.fecha_inicio = periodoDesde;
       suscripcion.trial_hasta = null as unknown as Date;
       suscripcion.cancelado_at = null as unknown as Date;
       suscripcion.monto_pagado = amount;
@@ -241,6 +248,8 @@ export class SuscripcionesService {
         referenciaExterna,
         statusCode,
         this.safeJson(response),
+        periodoDesde,
+        suscripcion.proximo_cobro,
       );
 
       return {
@@ -340,6 +349,44 @@ export class SuscripcionesService {
       order: { created_at: 'DESC' },
       take: 50,
     });
+  }
+
+  async solicitarContactoEnterprise(
+    tallerId: number,
+    dto: EnterpriseContactDto,
+    fallbackEmail?: string,
+  ) {
+    const destinatario = 'jorge.castro@qcore.com';
+    const asunto = `Solicitud Enterprise ROADIX - ${dto.taller_nombre}`;
+    const contactoEmail = dto.email?.trim() || fallbackEmail?.trim() || 'sin-email';
+    const mensaje = (dto.mensaje ?? '').trim() || 'Sin mensaje adicional';
+
+    await this.emailService.enviar(
+      tallerId,
+      TipoEmail.MARKETING,
+      destinatario,
+      asunto,
+      'enterprise_contact',
+      {
+        titulo: 'Nueva solicitud Enterprise ROADIX',
+        mensaje: [
+          `Nombre: ${dto.nombre}`,
+          `Taller: ${dto.taller_nombre}`,
+          `Email: ${contactoEmail}`,
+          `Telefono: ${dto.telefono?.trim() || 'No informado'}`,
+          `Periodo de interes: ${dto.periodo}`,
+          '',
+          'Mensaje:',
+          mensaje,
+        ].join('\n'),
+      },
+    );
+
+    return {
+      ok: true,
+      destinatario,
+      asunto,
+    };
   }
 
   async cambiarPlan(tallerId: number, dto: CambiarPlanDto, billingEmail?: string) {
@@ -516,8 +563,8 @@ export class SuscripcionesService {
       : Number(suscripcion.plan?.precio_mensual ?? 0);
   }
 
-  private calcularProximoCobro(periodo: SuscripcionPeriodo): Date {
-    const fecha = new Date();
+  private calcularProximoCobro(periodo: SuscripcionPeriodo, desde = new Date()): Date {
+    const fecha = new Date(desde);
     if (periodo === SuscripcionPeriodo.ANUAL) {
       fecha.setFullYear(fecha.getFullYear() + 1);
     } else {
@@ -854,6 +901,8 @@ export class SuscripcionesService {
     referenciaExterna: string,
     codigoRespuesta: string,
     detalleRespuesta: string,
+    periodoDesde?: Date,
+    periodoHasta?: Date,
   ) {
     let pago = await this.historialPagoRepo.findOne({
       where: { suscripcion_id: suscripcion.id, referencia },
@@ -871,6 +920,8 @@ export class SuscripcionesService {
         detalle_respuesta: detalleRespuesta,
         estado,
         fecha_pago: new Date(),
+        periodo_desde: periodoDesde,
+        periodo_hasta: periodoHasta,
       });
     } else {
       pago.monto = monto;
@@ -883,6 +934,8 @@ export class SuscripcionesService {
       ) ?? pago.detalle_respuesta;
       pago.estado = estado;
       pago.fecha_pago = new Date();
+      pago.periodo_desde = periodoDesde ?? pago.periodo_desde;
+      pago.periodo_hasta = periodoHasta ?? pago.periodo_hasta;
     }
 
     return this.historialPagoRepo.save(pago);

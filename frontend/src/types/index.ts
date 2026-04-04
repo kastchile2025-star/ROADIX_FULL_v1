@@ -134,6 +134,15 @@ export interface BillingUsage {
   storage_mb: UsageMetric;
 }
 
+export interface EnterpriseContactRequest {
+  nombre: string;
+  taller_nombre: string;
+  email: string;
+  telefono?: string;
+  periodo: 'mensual' | 'anual';
+  mensaje?: string;
+}
+
 // ── Cliente ──
 export interface Cliente {
   id: number;

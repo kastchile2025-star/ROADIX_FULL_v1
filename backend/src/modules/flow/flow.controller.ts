@@ -8,8 +8,10 @@ import {
   Logger,
   Post,
   Query,
+  Res,
   forwardRef,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import { FlowService } from './flow.service.js';
 import { CreateFlowPaymentDto } from './dto/create-flow-payment.dto.js';
 import { SuscripcionesService } from '../suscripciones/suscripciones.service.js';
@@ -31,6 +33,19 @@ export class FlowController {
     }
 
     return tokenQuery?.trim() ?? '';
+  }
+
+  private getFrontendBillingReturnUrl(token?: string) {
+    const baseUrl = this.flowService.getFrontendReturnUrl();
+    if (!token) return baseUrl;
+    return `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}token=${encodeURIComponent(token)}`;
+  }
+
+  private async reconcileToken(token: string) {
+    const statusPayload = await this.flowService.getPaymentStatus(token);
+    const statusResponse = (statusPayload.response ?? {}) as Record<string, unknown>;
+    const conciliation = await this.suscripcionesService.conciliarPagoFlowDesdeWebhook(token, { response: statusResponse });
+    return { statusPayload, conciliation };
   }
 
   @Get('health')
@@ -68,9 +83,7 @@ export class FlowController {
     }
 
     try {
-      const statusPayload = await this.flowService.getPaymentStatus(token);
-      const statusResponse = (statusPayload.response ?? {}) as Record<string, unknown>;
-      const conciliation = await this.suscripcionesService.conciliarPagoFlowDesdeWebhook(token, { response: statusResponse });
+      const { statusPayload, conciliation } = await this.reconcileToken(token);
 
       return {
         ok: true,
@@ -89,6 +102,44 @@ export class FlowController {
         error: message,
       };
     }
+  }
+
+  @Get('return')
+  async returnGet(
+    @Query('token') tokenQuery: string,
+    @Res() res: Response,
+  ) {
+    if (tokenQuery) {
+      try {
+        await this.reconcileToken(tokenQuery);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Flow return reconciliation failed';
+        this.logger.error(`Flow return GET failed token=${tokenQuery}: ${message}`);
+      }
+    }
+
+    return res.redirect(HttpStatus.SEE_OTHER, this.getFrontendBillingReturnUrl(tokenQuery));
+  }
+
+  @Post('return')
+  @HttpCode(HttpStatus.OK)
+  async returnPost(
+    @Body() payload: Record<string, unknown> = {},
+    @Query('token') tokenQuery: string,
+    @Res() res: Response,
+  ) {
+    const token = this.getTokenFromPayload(payload, tokenQuery);
+
+    if (token) {
+      try {
+        await this.reconcileToken(token);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Flow return reconciliation failed';
+        this.logger.error(`Flow return POST failed token=${token}: ${message}`);
+      }
+    }
+
+    return res.redirect(HttpStatus.SEE_OTHER, this.getFrontendBillingReturnUrl(token));
   }
 
   @Post('webhook')
@@ -110,9 +161,7 @@ export class FlowController {
     }
 
     try {
-      const statusPayload = await this.flowService.getPaymentStatus(token);
-      const statusResponse = (statusPayload.response ?? {}) as Record<string, unknown>;
-      const conciliation = await this.suscripcionesService.conciliarPagoFlowDesdeWebhook(token, { response: statusResponse });
+      const { statusPayload, conciliation } = await this.reconcileToken(token);
 
       return {
         received: true,

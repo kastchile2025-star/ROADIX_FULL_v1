@@ -6,6 +6,7 @@ import { Roles } from '../auth/decorators/roles.decorator.js';
 import { CurrentUser } from '../auth/decorators/current-user.decorator.js';
 import { UserRole } from '../../common/enums.js';
 import { CambiarPlanDto } from './dto/cambiar-plan.dto.js';
+import { EnterpriseContactDto } from './dto/enterprise-contact.dto.js';
 
 @Controller('suscripciones')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -44,6 +45,16 @@ export class SuscripcionesController {
   @Roles(UserRole.ADMIN_TALLER, UserRole.SUPERADMIN)
   cancelar(@CurrentUser('taller_id') tallerId: number) {
     return this.suscripcionesService.cancelar(tallerId);
+  }
+
+  @Post('enterprise-contact')
+  @Roles(UserRole.ADMIN_TALLER, UserRole.SUPERADMIN)
+  solicitarContactoEnterprise(
+    @CurrentUser('taller_id') tallerId: number,
+    @CurrentUser('email') email: string,
+    @Body() dto: EnterpriseContactDto,
+  ) {
+    return this.suscripcionesService.solicitarContactoEnterprise(tallerId, dto, email);
   }
 
   @Post('reactivar')

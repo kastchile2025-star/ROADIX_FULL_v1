@@ -35,6 +35,10 @@ export class FlowService {
     if (configured && !configured.includes('app.roadix.cl')) {
       return configured;
     }
+    return `${this.resolveBackendUrl()}/api/billing/flow/return`;
+  }
+
+  getFrontendReturnUrl() {
     return `${this.resolveAppUrl()}/billing/return`;
   }
 

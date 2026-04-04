@@ -1,5 +1,13 @@
 import api from './api';
-import type { Plan, Suscripcion, PagoSuscripcion, BillingUsage, BillingPlanChangeResult, FlowStatusResult } from '../types';
+import type {
+  Plan,
+  Suscripcion,
+  PagoSuscripcion,
+  BillingUsage,
+  BillingPlanChangeResult,
+  FlowStatusResult,
+  EnterpriseContactRequest,
+} from '../types';
 
 export const billingService = {
   getPlanes: () => api.get<Plan[]>('/planes').then((r) => r.data),
@@ -18,6 +26,9 @@ export const billingService = {
 
   getFlowStatus: (token: string) =>
     api.get<FlowStatusResult>('/billing/flow/status', { params: { token } }).then((r) => r.data),
+
+  solicitarEnterprise: (payload: EnterpriseContactRequest) =>
+    api.post<{ ok: boolean }>('/suscripciones/enterprise-contact', payload).then((r) => r.data),
 
   cancelar: () =>
     api.post<Suscripcion>('/suscripciones/cancelar').then((r) => r.data),

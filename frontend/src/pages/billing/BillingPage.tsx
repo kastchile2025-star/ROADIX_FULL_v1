@@ -1,9 +1,16 @@
 import { useEffect, useState } from 'react';
-import { Card, Badge, Button, Input } from '../../components/ui';
+import { Card, Badge, Button, Input, Modal } from '../../components/ui';
 import { useConfirm } from '../../components/ui';
 import { billingService } from '../../services/billing.service';
 import toast from 'react-hot-toast';
-import type { Plan, Suscripcion, PagoSuscripcion, BillingUsage, BillingPlanChangeResult } from '../../types';
+import type {
+  Plan,
+  Suscripcion,
+  PagoSuscripcion,
+  BillingUsage,
+  BillingPlanChangeResult,
+  EnterpriseContactRequest,
+} from '../../types';
 import { useI18n } from '../../context/I18nContext';
 import { useAuthStore } from '../../store/auth.store';
 import {
@@ -88,6 +95,16 @@ export default function BillingPage() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [billingEmail, setBillingEmail] = useState(user?.email ?? '');
+  const [enterpriseModalOpen, setEnterpriseModalOpen] = useState(false);
+  const [enterpriseLoading, setEnterpriseLoading] = useState(false);
+  const [enterpriseForm, setEnterpriseForm] = useState<EnterpriseContactRequest>({
+    nombre: user?.nombre ?? '',
+    taller_nombre: user?.taller?.nombre ?? '',
+    email: user?.email ?? '',
+    telefono: '',
+    periodo: 'mensual',
+    mensaje: '',
+  });
 
   const isValidBillingEmail = (email?: string) => !!email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
   const usesDemoDomain = /@roadix\.cl$/i.test(user?.email ?? '');
@@ -97,6 +114,15 @@ export default function BillingPage() {
       setBillingEmail((current) => current || user.email);
     }
   }, [user?.email]);
+
+  useEffect(() => {
+    setEnterpriseForm((current) => ({
+      ...current,
+      nombre: current.nombre || user?.nombre || '',
+      taller_nombre: current.taller_nombre || user?.taller?.nombre || '',
+      email: current.email || user?.email || '',
+    }));
+  }, [user?.email, user?.nombre, user?.taller?.nombre]);
 
   const getApiErrorMessage = (error: unknown, fallback: string) => {
     if (typeof error === 'object' && error !== null && 'response' in error) {
@@ -258,6 +284,58 @@ export default function BillingPage() {
       toast.error(getApiErrorMessage(e, t('billing.toastErrorReactivar')));
     } finally {
       setActionLoading(false);
+    }
+  };
+
+  const openEnterpriseModal = () => {
+    setEnterpriseForm((current) => ({
+      ...current,
+      periodo,
+    }));
+    setEnterpriseModalOpen(true);
+  };
+
+  const handleEnterpriseFieldChange = <K extends keyof EnterpriseContactRequest>(
+    field: K,
+    value: EnterpriseContactRequest[K],
+  ) => {
+    setEnterpriseForm((current) => ({
+      ...current,
+      [field]: value,
+    }));
+  };
+
+  const handleEnterpriseSubmit = async () => {
+    const nombre = enterpriseForm.nombre.trim();
+    const tallerNombre = enterpriseForm.taller_nombre.trim();
+    const email = enterpriseForm.email.trim();
+
+    if (!nombre || !tallerNombre) {
+      toast.error(t('billing.enterpriseValidationRequired'));
+      return;
+    }
+
+    if (!isValidBillingEmail(email)) {
+      toast.error(t('billing.enterpriseValidationEmail'));
+      return;
+    }
+
+    setEnterpriseLoading(true);
+    try {
+      await billingService.solicitarEnterprise({
+        ...enterpriseForm,
+        nombre,
+        taller_nombre: tallerNombre,
+        email,
+        telefono: enterpriseForm.telefono?.trim() || undefined,
+        mensaje: enterpriseForm.mensaje?.trim() || undefined,
+      });
+      toast.success(t('billing.enterpriseToastSuccess'));
+      setEnterpriseModalOpen(false);
+    } catch (e: unknown) {
+      toast.error(getApiErrorMessage(e, t('billing.enterpriseToastError')));
+    } finally {
+      setEnterpriseLoading(false);
     }
   };
 
@@ -449,7 +527,9 @@ export default function BillingPage() {
                   <HardDrive size={14} />
                   {plan.max_storage_mb >= 999999 ? t('billing.storageIlimitado') : t('billing.xGb').replace('{count}', String((plan.max_storage_mb / 1000).toFixed(0)))}
                 </li>
-                <FeatureCheck label={t('billing.featureFacturacion')} enabled={plan.tiene_facturacion} />
+                {plan.nombre === 'enterprise' && (
+                  <FeatureCheck label={t('billing.featureFacturacion')} enabled={plan.tiene_facturacion} />
+                )}
                 <FeatureCheck label={t('billing.featurePortal')} enabled={plan.tiene_portal} />
                 <FeatureCheck label={t('billing.featureWhatsapp')} enabled={plan.tiene_whatsapp} />
                 <FeatureCheck label={t('billing.featureReportes')} enabled={plan.tiene_reportes} />
@@ -457,7 +537,7 @@ export default function BillingPage() {
               </ul>
 
               {plan.nombre === 'enterprise' ? (
-                <Button variant="secondary" className="w-full" disabled>
+                <Button variant="secondary" className="w-full" onClick={openEnterpriseModal}>
                   {t('billing.contactanos')}
                 </Button>
               ) : isCurrent ? (
@@ -517,6 +597,94 @@ export default function BillingPage() {
           </div>
         )}
       </Card>
+
+      <Modal
+        open={enterpriseModalOpen}
+        onClose={() => !enterpriseLoading && setEnterpriseModalOpen(false)}
+        title={t('billing.enterpriseModalTitle')}
+        size="lg"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {t('billing.enterpriseModalIntro')}
+          </p>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Input
+              label={t('billing.enterpriseNombre')}
+              value={enterpriseForm.nombre}
+              onChange={(event) => handleEnterpriseFieldChange('nombre', event.target.value)}
+              placeholder={t('billing.enterpriseNombrePlaceholder')}
+            />
+            <Input
+              label={t('billing.enterpriseTaller')}
+              value={enterpriseForm.taller_nombre}
+              onChange={(event) => handleEnterpriseFieldChange('taller_nombre', event.target.value)}
+              placeholder={t('billing.enterpriseTallerPlaceholder')}
+            />
+            <Input
+              type="email"
+              label={t('billing.enterpriseEmail')}
+              value={enterpriseForm.email}
+              onChange={(event) => handleEnterpriseFieldChange('email', event.target.value)}
+              placeholder="nombre@dominio.com"
+            />
+            <Input
+              label={t('billing.enterpriseTelefono')}
+              value={enterpriseForm.telefono ?? ''}
+              onChange={(event) => handleEnterpriseFieldChange('telefono', event.target.value)}
+              placeholder={t('billing.enterpriseTelefonoPlaceholder')}
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="enterprise-periodo"
+              className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              {t('billing.enterprisePeriodo')}
+            </label>
+            <select
+              id="enterprise-periodo"
+              className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              value={enterpriseForm.periodo}
+              onChange={(event) => handleEnterpriseFieldChange('periodo', event.target.value as EnterpriseContactRequest['periodo'])}
+            >
+              <option value="mensual">{t('billing.mensual')}</option>
+              <option value="anual">{t('billing.anual')}</option>
+            </select>
+          </div>
+
+          <div>
+            <label
+              htmlFor="enterprise-mensaje"
+              className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              {t('billing.enterpriseMensaje')}
+            </label>
+            <textarea
+              id="enterprise-mensaje"
+              className="block min-h-32 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400"
+              value={enterpriseForm.mensaje ?? ''}
+              onChange={(event) => handleEnterpriseFieldChange('mensaje', event.target.value)}
+              placeholder={t('billing.enterpriseMensajePlaceholder')}
+            />
+          </div>
+
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="secondary"
+              onClick={() => setEnterpriseModalOpen(false)}
+              disabled={enterpriseLoading}
+            >
+              {t('billing.enterpriseCancel')}
+            </Button>
+            <Button onClick={handleEnterpriseSubmit} loading={enterpriseLoading}>
+              {t('billing.enterpriseSubmit')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
