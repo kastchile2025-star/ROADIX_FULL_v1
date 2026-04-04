@@ -555,6 +555,7 @@ export class SuscripcionesService {
         suscripcion: sub
           ? {
               id: sub.id,
+              plan_id: sub.plan?.id ?? null,
               plan_nombre: sub.plan?.nombre ?? 'sin-plan',
               periodo: sub.periodo,
               estado: sub.estado,
@@ -573,7 +574,7 @@ export class SuscripcionesService {
   /** Superadmin: edit any taller's subscription */
   async editarSuscripcionAdmin(
     tallerId: number,
-    dto: { periodo?: string; fecha_fin?: string; estado?: string },
+    dto: { periodo?: string; fecha_fin?: string; estado?: string; plan_id?: number },
   ) {
     const suscripcion = await this.suscripcionRepo.findOne({
       where: { taller_id: tallerId },
@@ -582,6 +583,13 @@ export class SuscripcionesService {
     });
     if (!suscripcion) throw new NotFoundException('Suscripción no encontrada para este taller');
 
+    if (dto.plan_id) {
+      const plan = await this.planRepo.findOneBy({ id: dto.plan_id });
+      if (plan) {
+        suscripcion.plan_id = plan.id;
+        suscripcion.plan = plan;
+      }
+    }
     if (dto.periodo && ['mensual', 'anual'].includes(dto.periodo)) {
       suscripcion.periodo = dto.periodo as SuscripcionPeriodo;
     }

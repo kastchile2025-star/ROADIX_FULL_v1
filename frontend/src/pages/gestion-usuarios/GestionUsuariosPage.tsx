@@ -17,6 +17,7 @@ interface TallerUser {
 
 interface TallerSub {
   id: number;
+  plan_id: number | null;
   plan_nombre: string;
   periodo: string;
   estado: string;
@@ -68,18 +69,23 @@ export default function GestionUsuariosPage() {
   };
 
   const [talleres, setTalleres] = useState<TallerData[]>([]);
+  const [planes, setPlanes] = useState<{ id: number; nombre: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [expandedTaller, setExpandedTaller] = useState<number | null>(null);
   const [editingTallerId, setEditingTallerId] = useState<number | null>(null);
-  const [editForm, setEditForm] = useState({ periodo: '', fecha_fin: '', estado: '' });
+  const [editForm, setEditForm] = useState({ plan_id: 0, periodo: '', fecha_fin: '', estado: '' });
   const [saving, setSaving] = useState(false);
 
   const load = async () => {
     setLoading(true);
     try {
-      const res = await api.get<TallerData[]>('/suscripciones/admin/talleres');
+      const [res, planesRes] = await Promise.all([
+        api.get<TallerData[]>('/suscripciones/admin/talleres'),
+        api.get<{ id: number; nombre: string }[]>('/planes'),
+      ]);
       setTalleres(res.data);
+      setPlanes(planesRes.data);
     } catch {
       toast.error(t('gestionUsuarios.errorCargar'));
     } finally {
@@ -120,6 +126,7 @@ export default function GestionUsuariosPage() {
     const sub = taller.suscripcion;
     setEditingTallerId(taller.id);
     setEditForm({
+      plan_id: sub?.plan_id ?? 0,
       periodo: sub?.periodo ?? 'mensual',
       fecha_fin: sub?.fecha_fin ? new Date(sub.fecha_fin).toISOString().split('T')[0] : '',
       estado: sub?.estado ?? 'activa',
@@ -132,6 +139,7 @@ export default function GestionUsuariosPage() {
     setSaving(true);
     try {
       await api.put(`/suscripciones/admin/suscripcion/${tallerId}`, {
+        plan_id: editForm.plan_id || undefined,
         periodo: editForm.periodo,
         fecha_fin: editForm.fecha_fin || undefined,
         estado: editForm.estado,
@@ -288,9 +296,25 @@ export default function GestionUsuariosPage() {
                               <p className="text-xs text-gray-500 dark:text-gray-400">
                                 {t('gestionUsuarios.plan')}
                               </p>
-                              <p className="font-semibold text-gray-900 dark:text-white uppercase">
-                                {sub.plan_nombre}
-                              </p>
+                              {isEditing ? (
+                                <select
+                                  value={editForm.plan_id}
+                                  onChange={(e) =>
+                                    setEditForm({ ...editForm, plan_id: Number(e.target.value) })
+                                  }
+                                  className="mt-0.5 w-full rounded border border-gray-300 dark:border-gray-600 px-2 py-1 text-xs dark:bg-gray-700 dark:text-white"
+                                >
+                                  {planes.map((p) => (
+                                    <option key={p.id} value={p.id}>
+                                      {p.nombre.toUpperCase()}
+                                    </option>
+                                  ))}
+                                </select>
+                              ) : (
+                                <p className="font-semibold text-gray-900 dark:text-white uppercase">
+                                  {sub.plan_nombre}
+                                </p>
+                              )}
                             </div>
                             <div>
                               <p className="text-xs text-gray-500 dark:text-gray-400">
