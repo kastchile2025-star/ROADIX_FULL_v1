@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Card, Button } from '../../components/ui';
 import { billingService } from '../../services/billing.service';
 import { useAuthStore } from '../../store/auth.store';
 
 export default function BillingReturnPage() {
-  const navigate = useNavigate();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)();
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
