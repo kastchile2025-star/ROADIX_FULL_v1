@@ -494,14 +494,19 @@ export class SuscripcionesService {
   async reactivar(tallerId: number) {
     const suscripcion = await this.getActivePlan(tallerId);
 
-    if (suscripcion.estado === SuscripcionEstado.ACTIVA) {
+    // If already activa but has cancelado_at, just clear the cancellation
+    if (suscripcion.estado === SuscripcionEstado.ACTIVA && !suscripcion.cancelado_at) {
       throw new BadRequestException('La suscripción ya está activa');
     }
 
     suscripcion.auto_renovar = true;
     suscripcion.cancelado_at = null as unknown as Date;
     suscripcion.estado = SuscripcionEstado.ACTIVA;
-    suscripcion.proximo_cobro = new Date();
+    if (!suscripcion.proximo_cobro || new Date(suscripcion.proximo_cobro) < new Date()) {
+      const enUnMes = new Date();
+      enUnMes.setMonth(enUnMes.getMonth() + 1);
+      suscripcion.proximo_cobro = enUnMes;
+    }
 
     return this.suscripcionRepo.save(suscripcion);
   }
@@ -594,6 +599,8 @@ export class SuscripcionesService {
         if (['starter', 'pro', 'enterprise'].includes(plan.nombre)) {
           suscripcion.estado = SuscripcionEstado.ACTIVA;
           suscripcion.periodo = 'mensual' as SuscripcionPeriodo;
+          suscripcion.cancelado_at = null as unknown as Date;
+          suscripcion.auto_renovar = true;
           const enUnMes = new Date();
           enUnMes.setMonth(enUnMes.getMonth() + 1);
           suscripcion.fecha_fin = enUnMes;
