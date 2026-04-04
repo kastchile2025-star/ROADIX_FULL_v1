@@ -131,6 +131,25 @@ export class FlowService {
       body,
     });
 
+    const result = await this.parseFlowResponse(endpoint, response);
+    return { ...result, payload, signature };
+  }
+
+  private async getForm(endpoint: string, payload: Record<string, unknown>) {
+    if (!this.isConfigured()) {
+      throw new BadRequestException('Flow is not configured');
+    }
+
+    const signature = this.signPayload(payload);
+    const params = this.toFormBody(payload, signature);
+    const url = `${endpoint}?${params.toString()}`;
+
+    const response = await fetch(url, { method: 'GET' });
+
+    return this.parseFlowResponse(endpoint, response);
+  }
+
+  private async parseFlowResponse(endpoint: string, response: globalThis.Response) {
     const text = await response.text();
     let parsed: unknown = text;
     try {
@@ -164,8 +183,6 @@ export class FlowService {
 
     return {
       endpoint,
-      payload,
-      signature,
       response: parsed,
     };
   }
@@ -183,6 +200,6 @@ export class FlowService {
     const endpoint = `${this.getConfig().baseUrl}/payment/getStatus`;
 
     this.logger.log(`Flow getPaymentStatus token=${token}`);
-    return this.postForm(endpoint, payload);
+    return this.getForm(endpoint, payload);
   }
 }
