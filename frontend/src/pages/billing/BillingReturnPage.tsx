@@ -11,14 +11,73 @@ export default function BillingReturnPage() {
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('Estamos confirmando tu pago con Flow...');
+  const [canRetry, setCanRetry] = useState(false);
   const appRedirectTarget = isAuthenticated ? '/app/billing' : '/app/login';
 
   const redirectToApp = () => {
     window.location.replace(appRedirectTarget);
   };
 
+  const pollToken = async (token: string, maxAttempts: number, cancelled: { current: boolean }) => {
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      try {
+        const result = await billingService.getFlowStatus(token);
+        const estado = result.conciliation?.estado;
+
+        if (cancelled.current) return;
+
+        if (estado === 'paid') {
+          toast.success('Pago confirmado correctamente.');
+          redirectToApp();
+          return;
+        }
+
+        if (estado === 'failed') {
+          setMessage('Flow informo que el pago fue rechazado o cancelado.');
+          toast.error('El pago no fue aprobado.');
+          setLoading(false);
+          return;
+        }
+
+        if (attempt < maxAttempts) {
+          setMessage(`Confirmando pago con Flow... intento ${attempt} de ${maxAttempts}`);
+          await new Promise((resolve) => setTimeout(resolve, 2500));
+          continue;
+        }
+
+        setMessage('El pago fue procesado en Flow, pero la confirmacion aun esta pendiente. Puedes volver a Billing donde se verificara automaticamente.');
+        setLoading(false);
+        setCanRetry(true);
+        return;
+      } catch (error) {
+        if (cancelled.current) return;
+
+        if (attempt < maxAttempts) {
+          setMessage(`Esperando confirmacion de Flow... intento ${attempt} de ${maxAttempts}`);
+          await new Promise((resolve) => setTimeout(resolve, 2500));
+          continue;
+        }
+
+        setMessage('No pudimos validar el pago con Flow en este momento. Vuelve a Billing donde se verificara automaticamente.');
+        setLoading(false);
+        setCanRetry(true);
+        return;
+      }
+    }
+  };
+
+  const handleRetry = () => {
+    const token = searchParams.get('token');
+    if (!token) return;
+    setLoading(true);
+    setCanRetry(false);
+    setMessage('Reintentando verificacion de pago...');
+    const cancelled = { current: false };
+    void pollToken(token, 4, cancelled);
+  };
+
   useEffect(() => {
-    let cancelled = false;
+    const cancelled = { current: false };
 
     const token = searchParams.get('token');
     if (!token) {
@@ -27,70 +86,12 @@ export default function BillingReturnPage() {
       return undefined;
     }
 
-    const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-    const run = async () => {
-      for (let attempt = 1; attempt <= 8; attempt += 1) {
-        try {
-          const result = await billingService.getFlowStatus(token);
-          const estado = result.conciliation?.estado;
-
-          if (cancelled) return;
-
-          if (estado === 'paid') {
-            toast.success('Pago confirmado correctamente.');
-            redirectToApp();
-            return;
-          }
-
-          if (estado === 'failed') {
-            setMessage('Flow informo que el pago fue rechazado o cancelado.');
-            toast.error('El pago no fue aprobado.');
-            setLoading(false);
-            return;
-          }
-
-          if (attempt < 8) {
-            setMessage(`Confirmando pago con Flow... intento ${attempt} de 8`);
-            await wait(2500);
-            continue;
-          }
-
-          setMessage(result.error ?? 'El pago fue procesado en Flow, pero la confirmacion aun esta pendiente. Puedes volver a Billing y revisar en unos segundos.');
-          setLoading(false);
-          return;
-        } catch (error) {
-          if (cancelled) return;
-
-          const apiMessage =
-            typeof error === 'object'
-            && error !== null
-            && 'response' in error
-            && typeof (error as {
-              response?: { data?: { message?: string } };
-            }).response?.data?.message === 'string'
-              ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
-              : undefined;
-
-          if (attempt < 8) {
-            setMessage(`Esperando confirmacion de Flow... intento ${attempt} de 8`);
-            await wait(2500);
-            continue;
-          }
-
-          setMessage(apiMessage ?? 'No pudimos validar el pago de Flow.');
-          setLoading(false);
-          return;
-        }
-      }
-    };
-
-    void run();
+    void pollToken(token, 8, cancelled);
 
     return () => {
-      cancelled = true;
+      cancelled.current = true;
     };
-  }, [appRedirectTarget, isAuthenticated, navigate, searchParams]);
+  }, [searchParams]);
 
   return (
     <div className="mx-auto flex min-h-[60vh] w-full max-w-2xl items-center justify-center px-4">
@@ -106,7 +107,12 @@ export default function BillingReturnPage() {
           )}
 
           {!loading && (
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-2">
+              {canRetry && (
+                <Button variant="secondary" onClick={handleRetry}>
+                  Reintentar
+                </Button>
+              )}
               <Button onClick={redirectToApp}>
                 {isAuthenticated ? 'Volver a Billing' : 'Ir a Login'}
               </Button>

@@ -42,10 +42,22 @@ export class FlowController {
   }
 
   private async reconcileToken(token: string) {
-    const statusPayload = await this.flowService.getPaymentStatus(token);
-    const statusResponse = (statusPayload.response ?? {}) as Record<string, unknown>;
-    const conciliation = await this.suscripcionesService.conciliarPagoFlowDesdeWebhook(token, { response: statusResponse });
-    return { statusPayload, conciliation };
+    try {
+      const statusPayload = await this.flowService.getPaymentStatus(token);
+      const statusResponse = (statusPayload.response ?? {}) as Record<string, unknown>;
+      const conciliation = await this.suscripcionesService.conciliarPagoFlowDesdeWebhook(token, { response: statusResponse });
+      return { statusPayload, conciliation };
+    } catch (error) {
+      const dbStatus = await this.suscripcionesService.buscarEstadoPagoPorToken(token);
+      if (dbStatus && dbStatus.estado !== 'pending') {
+        this.logger.log(`Flow API failed but DB has definitive status for token=${token}: ${dbStatus.estado}`);
+        return {
+          statusPayload: { response: {} as Record<string, unknown> },
+          conciliation: dbStatus,
+        };
+      }
+      throw error;
+    }
   }
 
   @Get('health')
@@ -94,6 +106,21 @@ export class FlowController {
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Flow status lookup failed';
       this.logger.error(`Flow status endpoint failed token=${token}: ${message}`);
+
+      try {
+        const dbStatus = await this.suscripcionesService.buscarEstadoPagoPorToken(token);
+        if (dbStatus) {
+          return {
+            ok: dbStatus.estado !== 'pending',
+            token,
+            statusPayload: { response: {} as Record<string, unknown> },
+            conciliation: dbStatus,
+          };
+        }
+      } catch (dbError) {
+        this.logger.warn(`DB fallback also failed token=${token}: ${dbError instanceof Error ? dbError.message : 'unknown'}`);
+      }
+
       return {
         ok: false,
         token,

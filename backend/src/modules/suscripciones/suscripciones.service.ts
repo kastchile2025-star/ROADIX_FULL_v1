@@ -317,6 +317,36 @@ export class SuscripcionesService {
     };
   }
 
+  async buscarEstadoPagoPorToken(token: string): Promise<{
+    matched: boolean;
+    suscripcionId?: number;
+    estado: 'paid' | 'failed' | 'pending';
+    source: string;
+  } | null> {
+    const pago = await this.historialPagoRepo
+      .createQueryBuilder('h')
+      .where('h.referencia_externa = :token', { token })
+      .orWhere('h.detalle_respuesta LIKE :tokenLike', { tokenLike: `%${token}%` })
+      .orderBy('h.created_at', 'DESC')
+      .getOne();
+
+    if (!pago) return null;
+
+    const estado =
+      pago.estado === PagoSuscripcionEstado.EXITOSO
+        ? 'paid'
+        : pago.estado === PagoSuscripcionEstado.FALLIDO
+          ? 'failed'
+          : 'pending';
+
+    return {
+      matched: true,
+      suscripcionId: pago.suscripcion_id,
+      estado,
+      source: 'database_fallback',
+    };
+  }
+
   /** Returns current resource usage vs plan limits */
   async getUsage(tallerId: number) {
     const suscripcion = await this.getActivePlan(tallerId);
