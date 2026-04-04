@@ -583,6 +583,8 @@ export class SuscripcionesService {
     });
     if (!suscripcion) throw new NotFoundException('Suscripción no encontrada para este taller');
 
+    let autoActivated = false;
+
     if (dto.plan_id) {
       const plan = await this.planRepo.findOneBy({ id: dto.plan_id });
       if (plan) {
@@ -596,19 +598,23 @@ export class SuscripcionesService {
           enUnMes.setMonth(enUnMes.getMonth() + 1);
           suscripcion.fecha_fin = enUnMes;
           suscripcion.proximo_cobro = enUnMes;
+          autoActivated = true;
         }
       }
     }
-    if (dto.periodo && ['mensual', 'anual'].includes(dto.periodo)) {
-      suscripcion.periodo = dto.periodo as SuscripcionPeriodo;
-    }
-    if (dto.fecha_fin) {
-      suscripcion.fecha_fin = new Date(dto.fecha_fin);
-    }
-    if (dto.estado) {
-      const validStates = Object.values(SuscripcionEstado) as string[];
-      if (validStates.includes(dto.estado)) {
-        suscripcion.estado = dto.estado as SuscripcionEstado;
+    // Only apply manual overrides if no auto-activation happened
+    if (!autoActivated) {
+      if (dto.periodo && ['mensual', 'anual'].includes(dto.periodo)) {
+        suscripcion.periodo = dto.periodo as SuscripcionPeriodo;
+      }
+      if (dto.fecha_fin) {
+        suscripcion.fecha_fin = new Date(dto.fecha_fin);
+      }
+      if (dto.estado) {
+        const validStates = Object.values(SuscripcionEstado) as string[];
+        if (validStates.includes(dto.estado)) {
+          suscripcion.estado = dto.estado as SuscripcionEstado;
+        }
       }
     }
 
