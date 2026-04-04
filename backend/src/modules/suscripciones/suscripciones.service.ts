@@ -361,13 +361,9 @@ export class SuscripcionesService {
     const contactoEmail = dto.email?.trim() || fallbackEmail?.trim() || 'sin-email';
     const mensaje = (dto.mensaje ?? '').trim() || 'Sin mensaje adicional';
 
-    await this.emailService.enviar(
-      tallerId,
-      TipoEmail.MARKETING,
-      destinatario,
-      asunto,
-      'enterprise_contact',
-      {
+    // Fire-and-forget: don't block response if Redis/email queue is unavailable
+    this.emailService
+      .enviar(tallerId, TipoEmail.MARKETING, destinatario, asunto, 'enterprise_contact', {
         titulo: 'Nueva solicitud Enterprise ROADIX',
         mensaje: [
           `Nombre: ${dto.nombre}`,
@@ -379,8 +375,10 @@ export class SuscripcionesService {
           'Mensaje:',
           mensaje,
         ].join('\n'),
-      },
-    );
+      })
+      .catch((err) =>
+        this.logger.error(`Enterprise contact email failed: ${err.message}`),
+      );
 
     return {
       ok: true,
