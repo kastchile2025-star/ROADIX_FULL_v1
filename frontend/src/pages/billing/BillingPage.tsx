@@ -97,6 +97,7 @@ export default function BillingPage() {
   const [billingEmail, setBillingEmail] = useState(user?.email ?? '');
   const [enterpriseModalOpen, setEnterpriseModalOpen] = useState(false);
   const [enterpriseLoading, setEnterpriseLoading] = useState(false);
+  const [enterpriseSent, setEnterpriseSent] = useState(false);
   const [enterpriseForm, setEnterpriseForm] = useState<EnterpriseContactRequest>({
     nombre: user?.nombre ?? '',
     taller_nombre: user?.taller?.nombre ?? '',
@@ -292,6 +293,7 @@ export default function BillingPage() {
       ...current,
       periodo,
     }));
+    setEnterpriseSent(false);
     setEnterpriseModalOpen(true);
   };
 
@@ -331,7 +333,7 @@ export default function BillingPage() {
         mensaje: enterpriseForm.mensaje?.trim() || undefined,
       });
       toast.success(t('billing.enterpriseToastSuccess'));
-      setEnterpriseModalOpen(false);
+      setEnterpriseSent(true);
     } catch (e: unknown) {
       toast.error(getApiErrorMessage(e, t('billing.enterpriseToastError')));
     } finally {
@@ -537,7 +539,7 @@ export default function BillingPage() {
               </ul>
 
               {plan.nombre === 'enterprise' ? (
-                <Button variant="secondary" className="w-full" onClick={openEnterpriseModal}>
+                <Button className="w-full" onClick={openEnterpriseModal}>
                   {t('billing.contactanos')}
                 </Button>
               ) : isCurrent ? (
@@ -605,6 +607,21 @@ export default function BillingPage() {
         size="lg"
       >
         <div className="space-y-4">
+          {enterpriseSent ? (
+            <div className="flex flex-col items-center gap-4 py-6">
+              <CheckCircle className="h-16 w-16 text-green-500" />
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                {t('billing.enterpriseSentTitle')}
+              </h3>
+              <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+                {t('billing.enterpriseSentMessage')}
+              </p>
+              <Button onClick={() => setEnterpriseModalOpen(false)} className="mt-2">
+                {t('billing.enterpriseSentClose')}
+              </Button>
+            </div>
+          ) : (
+          <>
           <p className="text-sm text-gray-600 dark:text-gray-400">
             {t('billing.enterpriseModalIntro')}
           </p>
@@ -683,6 +700,8 @@ export default function BillingPage() {
               {t('billing.enterpriseSubmit')}
             </Button>
           </div>
+          </>
+          )}
         </div>
       </Modal>
     </div>

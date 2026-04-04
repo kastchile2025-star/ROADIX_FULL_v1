@@ -361,21 +361,28 @@ export class SuscripcionesService {
     const contactoEmail = dto.email?.trim() || fallbackEmail?.trim() || 'sin-email';
     const mensaje = (dto.mensaje ?? '').trim() || 'Sin mensaje adicional';
 
-    // Fire-and-forget: don't block response if Redis/email queue is unavailable
+    const html = `
+      <div style="font-family: sans-serif; padding: 20px; max-width: 600px;">
+        <h2 style="color: #1a56db;">Nueva solicitud Enterprise ROADIX</h2>
+        <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
+          <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Nombre</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${dto.nombre}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Taller</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${dto.taller_nombre}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Email</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${contactoEmail}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Teléfono</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${dto.telefono?.trim() || 'No informado'}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Periodo</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${dto.periodo}</td></tr>
+        </table>
+        <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-top: 12px;">
+          <strong>Mensaje:</strong><br/>
+          <p style="white-space: pre-wrap;">${mensaje}</p>
+        </div>
+        <hr style="margin-top: 24px; border: none; border-top: 1px solid #eee;" />
+        <p style="color: #888; font-size: 12px;">Roadix — Sistema de Gestión de Taller</p>
+      </div>
+    `;
+
+    // Send directly bypassing Bull/Redis queue
     this.emailService
-      .enviar(tallerId, TipoEmail.MARKETING, destinatario, asunto, 'enterprise_contact', {
-        titulo: 'Nueva solicitud Enterprise ROADIX',
-        mensaje: [
-          `Nombre: ${dto.nombre}`,
-          `Taller: ${dto.taller_nombre}`,
-          `Email: ${contactoEmail}`,
-          `Telefono: ${dto.telefono?.trim() || 'No informado'}`,
-          `Periodo de interes: ${dto.periodo}`,
-          '',
-          'Mensaje:',
-          mensaje,
-        ].join('\n'),
-      })
+      .enviarDirecto(tallerId, TipoEmail.MARKETING, destinatario, asunto, html)
       .catch((err) =>
         this.logger.error(`Enterprise contact email failed: ${err.message}`),
       );
