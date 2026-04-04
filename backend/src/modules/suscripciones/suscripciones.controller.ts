@@ -84,7 +84,7 @@ export class SuscripcionesController {
   @Roles(UserRole.SUPERADMIN)
   editarSuscripcionAdmin(
     @Param('tallerId', ParseIntPipe) tallerId: number,
-    @Body() dto: { periodo?: string; fecha_fin?: string; estado?: string },
+    @Body() dto: { periodo?: string; fecha_fin?: string; estado?: string; plan_id?: number },
   ) {
     return this.suscripcionesService.editarSuscripcionAdmin(tallerId, dto);
   }

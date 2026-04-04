@@ -621,6 +621,16 @@ export class SuscripcionesService {
         const validStates = Object.values(SuscripcionEstado) as string[];
         if (validStates.includes(dto.estado)) {
           suscripcion.estado = dto.estado as SuscripcionEstado;
+          // Handle side effects of estado changes
+          if (dto.estado === SuscripcionEstado.CANCELADA) {
+            suscripcion.cancelado_at = new Date();
+            suscripcion.auto_renovar = false;
+          } else if (dto.estado === SuscripcionEstado.SUSPENDIDA) {
+            suscripcion.auto_renovar = false;
+          } else if (dto.estado === SuscripcionEstado.ACTIVA) {
+            suscripcion.cancelado_at = null as unknown as Date;
+            suscripcion.auto_renovar = true;
+          }
         }
       }
     }
