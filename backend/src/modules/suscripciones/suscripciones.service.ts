@@ -588,6 +588,15 @@ export class SuscripcionesService {
       if (plan) {
         suscripcion.plan_id = plan.id;
         suscripcion.plan = plan;
+        // If upgrading to a paid plan, auto-activate with mensual + 1 month
+        if (['starter', 'pro', 'enterprise'].includes(plan.nombre)) {
+          suscripcion.estado = SuscripcionEstado.ACTIVA;
+          suscripcion.periodo = 'mensual' as SuscripcionPeriodo;
+          const enUnMes = new Date();
+          enUnMes.setMonth(enUnMes.getMonth() + 1);
+          suscripcion.fecha_fin = enUnMes;
+          suscripcion.proximo_cobro = enUnMes;
+        }
       }
     }
     if (dto.periodo && ['mensual', 'anual'].includes(dto.periodo)) {
