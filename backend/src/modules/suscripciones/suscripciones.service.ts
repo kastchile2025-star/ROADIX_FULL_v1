@@ -436,6 +436,19 @@ export class SuscripcionesService {
       throw new BadRequestException('Ya estás en este plan y período');
     }
 
+    // Prevent downgrade from paid plan to free
+    if (
+      suscripcion.plan &&
+      suscripcion.plan.precio_mensual > 0 &&
+      nuevoPlan.precio_mensual === 0 &&
+      nuevoPlan.nombre !== 'admin'
+    ) {
+      throw new BadRequestException(
+        'No puedes cambiar a un plan gratuito mientras tienes un plan de pago activo. ' +
+        'Tu suscripción cambiará automáticamente al vencer.',
+      );
+    }
+
     const monto =
       dto.periodo === SuscripcionPeriodo.ANUAL
         ? nuevoPlan.precio_anual

@@ -45,6 +45,10 @@ async function bootstrap() {
       await dataSource.query(
         `UPDATE "usuario" SET "rol" = 'superadmin' WHERE "email" IN ('admin', 'admin@roadix.cl') AND "rol" != 'superadmin'`,
       );
+      // Ensure Starter plan price is correct (25990 CLP/mes)
+      await dataSource.query(
+        `UPDATE "plan" SET "precio_mensual" = 25990, "precio_anual" = 280692 WHERE "nombre" = 'starter' AND "precio_mensual" != 25990`,
+      );
     } catch (error) {
       console.error('[SEED] Skipped:', (error as Error).message);
     }

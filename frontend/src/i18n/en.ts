@@ -573,6 +573,7 @@ export const en: Record<string, string> = {
   'billing.planActualBtn': 'Current plan',
   'billing.upgrade': 'Upgrade',
   'billing.seleccionar': 'Select',
+  'billing.noDowngradeFree': 'Your plan will switch to Free automatically when your subscription expires.',
   'billing.historialPagos': 'Payment history',
   'billing.pagoThFecha': 'Date',
   'billing.pagoThMonto': 'Amount',
