@@ -5,3 +5,4 @@ export { Card } from './Card';
 export { Badge } from './Badge';
 export { SignaturePad } from './SignaturePad';
 export { ConfirmProvider, useConfirm } from './ConfirmDialog';
+export { PlanLimitModal } from './PlanLimitModal';

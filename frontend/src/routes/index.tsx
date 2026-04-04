@@ -32,6 +32,7 @@ const NotificacionesPage = lazyWithRetry(() => import('../pages/notificaciones/N
 const ReportesPage = lazyWithRetry(() => import('../pages/reportes/ReportesPage'));
 const BillingPage = lazyWithRetry(() => import('../pages/billing/BillingPage'));
 const BillingReturnPage = lazyWithRetry(() => import('../pages/billing/BillingReturnPage'));
+const GestionUsuariosPage = lazyWithRetry(() => import('../pages/gestion-usuarios/GestionUsuariosPage'));
 const PortalPage = lazyWithRetry(() => import('../pages/portal/PortalPage'));
 
 function LazyFallback() {
@@ -82,6 +83,7 @@ export const router = createBrowserRouter([
           { path: '/notificaciones', element: <Lazy><NotificacionesPage /></Lazy> },
           { path: '/reportes', element: <Lazy><ReportesPage /></Lazy> },
           { path: '/billing', element: <Lazy><BillingPage /></Lazy> },
+          { path: '/gestion-usuarios', element: <Lazy><GestionUsuariosPage /></Lazy> },
           { path: '/usuarios', element: <Lazy><UsuariosPage /></Lazy> },
           { path: '/configuracion', element: <Lazy><ConfiguracionPage /></Lazy> },
         ],

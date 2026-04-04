@@ -18,6 +18,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   HelpCircle,
+  ShieldAlert,
 } from 'lucide-react';
 import { RoadixLogo } from '../ui/RoadixLogo';
 import { useI18n } from '../../context/I18nContext';
@@ -39,6 +40,7 @@ const links = [
   { to: '/billing', icon: CreditCard, key: 'sidebar.billing', adminOnly: true },
   { to: '/usuarios', icon: UserCog, key: 'sidebar.usuarios' },
   { to: '/configuracion', icon: Settings, key: 'sidebar.configuracion' },
+  { to: '/gestion-usuarios', icon: ShieldAlert, key: 'sidebar.gestionUsuarios', adminOnly: true, red: true },
 ];
 
 interface SidebarProps {
@@ -73,7 +75,7 @@ export function Sidebar({ collapsed, onToggle, onTour }: SidebarProps) {
 
       {/* Nav links */}
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-2 py-4">
-        {visibleLinks.map(({ to, icon: Icon, key }) => (
+        {visibleLinks.map(({ to, icon: Icon, key, red }) => (
           <NavLink
             key={to}
             to={to}
@@ -83,9 +85,13 @@ export function Sidebar({ collapsed, onToggle, onTour }: SidebarProps) {
               `flex items-center gap-3 rounded-lg py-2 pr-3 text-sm font-medium transition-all border-l-2 ${
                 collapsed ? 'pl-[9px]' : 'pl-[10px]'
               } ${
-                isActive
-                  ? 'bg-blue-500/20 text-blue-300 border-blue-400'
-                  : 'text-slate-400 hover:bg-white/5 hover:text-slate-100 border-transparent'
+                red
+                  ? isActive
+                    ? 'bg-red-500/20 text-red-300 border-red-400'
+                    : 'text-red-400 hover:bg-red-500/10 hover:text-red-300 border-transparent'
+                  : isActive
+                    ? 'bg-blue-500/20 text-blue-300 border-blue-400'
+                    : 'text-slate-400 hover:bg-white/5 hover:text-slate-100 border-transparent'
               }`
             }
           >

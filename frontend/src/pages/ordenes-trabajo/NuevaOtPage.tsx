@@ -4,11 +4,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ArrowLeft } from 'lucide-react';
-import { Button, Input, Card, SignaturePad } from '../../components/ui';
+import { Button, Input, Card, SignaturePad, PlanLimitModal } from '../../components/ui';
 import { ordenesTrabajoService } from '../../services/ordenes-trabajo.service';
 import { clientesService } from '../../services/clientes.service';
 import { vehiculosService } from '../../services/vehiculos.service';
 import { mecanicosService } from '../../services/mecanicos.service';
+import { billingService } from '../../services/billing.service';
 import { useI18n } from '../../context/I18nContext';
 import type { Cliente, Vehiculo, Mecanico } from '../../types';
 
@@ -49,6 +50,9 @@ export default function NuevaOtPage() {
   );
   const [firmaBase64, setFirmaBase64] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [limitOpen, setLimitOpen] = useState(false);
+  const [limitUsado, setLimitUsado] = useState(0);
+  const [limitMax, setLimitMax] = useState(0);
 
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<Form>({
     resolver: zodResolver(schema),
@@ -58,6 +62,13 @@ export default function NuevaOtPage() {
   useEffect(() => {
     clientesService.list().then(setClientes);
     mecanicosService.getActive().then(setMecanicos);
+    billingService.getUsage().then((usage) => {
+      if (usage.ots_mes.usado >= usage.ots_mes.limite) {
+        setLimitUsado(usage.ots_mes.usado);
+        setLimitMax(usage.ots_mes.limite);
+        setLimitOpen(true);
+      }
+    }).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -242,6 +253,14 @@ export default function NuevaOtPage() {
           </Button>
         </div>
       </form>
+
+      <PlanLimitModal
+        open={limitOpen}
+        onClose={() => setLimitOpen(false)}
+        resource="ots"
+        usado={limitUsado}
+        limite={limitMax}
+      />
     </div>
   );
 }

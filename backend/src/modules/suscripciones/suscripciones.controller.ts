@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, UseGuards } from '@nestjs/common';
 import { SuscripcionesService } from './suscripciones.service.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { RolesGuard } from '../auth/guards/roles.guard.js';
@@ -61,5 +61,14 @@ export class SuscripcionesController {
   @Roles(UserRole.ADMIN_TALLER, UserRole.SUPERADMIN)
   reactivar(@CurrentUser('taller_id') tallerId: number) {
     return this.suscripcionesService.reactivar(tallerId);
+  }
+
+  @Put('editar')
+  @Roles(UserRole.ADMIN_TALLER, UserRole.SUPERADMIN)
+  editar(
+    @CurrentUser('taller_id') tallerId: number,
+    @Body() dto: { periodo?: string; fecha_fin?: string },
+  ) {
+    return this.suscripcionesService.editarSuscripcion(tallerId, dto);
   }
 }

@@ -3,9 +3,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Plus, Pencil, Trash2, Mail } from 'lucide-react';
-import { Button, Input, Modal, Card, Badge } from '../../components/ui';
+import { Button, Input, Modal, Card, Badge, PlanLimitModal } from '../../components/ui';
 import { useConfirm } from '../../components/ui';
 import { usuariosService } from '../../services/usuarios.service';
+import { billingService } from '../../services/billing.service';
 import { authService } from '../../services/auth.service';
 import { useI18n } from '../../context/I18nContext';
 import toast from 'react-hot-toast';
@@ -51,6 +52,9 @@ export default function UsuariosPage() {
   const [inviteOpen, setInviteOpen] = useState(false);
   const [inviting, setInviting] = useState(false);
   const [inviteData, setInviteData] = useState({ nombre: '', email: '', rol: 'recepcionista', telefono: '' });
+  const [limitOpen, setLimitOpen] = useState(false);
+  const [limitUsado, setLimitUsado] = useState(0);
+  const [limitMax, setLimitMax] = useState(0);
 
   const {
     register,
@@ -68,7 +72,16 @@ export default function UsuariosPage() {
     load();
   }, []);
 
-  const openNew = () => {
+  const openNew = async () => {
+    try {
+      const usage = await billingService.getUsage();
+      if (usage.usuarios.usado >= usage.usuarios.limite) {
+        setLimitUsado(usage.usuarios.usado);
+        setLimitMax(usage.usuarios.limite);
+        setLimitOpen(true);
+        return;
+      }
+    } catch { /* ignore, let backend guard catch it */ }
     setEditing(null);
     reset({ nombre: '', email: '', password: '', rol: 'recepcionista', telefono: '' });
     setModalOpen(true);
@@ -273,6 +286,14 @@ export default function UsuariosPage() {
           </div>
         </div>
       </Modal>
+
+      <PlanLimitModal
+        open={limitOpen}
+        onClose={() => setLimitOpen(false)}
+        resource="usuarios"
+        usado={limitUsado}
+        limite={limitMax}
+      />
     </div>
   );
 }

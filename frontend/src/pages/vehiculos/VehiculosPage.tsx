@@ -3,9 +3,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Plus, Search, Pencil, Trash2 } from 'lucide-react';
-import { Button, Input, Modal, Card, Badge } from '../../components/ui';
+import { Button, Input, Modal, Card, Badge, PlanLimitModal } from '../../components/ui';
 import { useConfirm } from '../../components/ui';
 import { vehiculosService } from '../../services/vehiculos.service';
+import { billingService } from '../../services/billing.service';
 import { useI18n } from '../../context/I18nContext';
 import type { Vehiculo } from '../../types';
 
@@ -30,6 +31,9 @@ export default function VehiculosPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Vehiculo | null>(null);
   const [loading, setLoading] = useState(false);
+  const [limitOpen, setLimitOpen] = useState(false);
+  const [limitUsado, setLimitUsado] = useState(0);
+  const [limitMax, setLimitMax] = useState(0);
 
   const {
     register,
@@ -47,7 +51,16 @@ export default function VehiculosPage() {
     load();
   }, [search]);
 
-  const openNew = () => {
+  const openNew = async () => {
+    try {
+      const usage = await billingService.getUsage();
+      if (usage.vehiculos.usado >= usage.vehiculos.limite) {
+        setLimitUsado(usage.vehiculos.usado);
+        setLimitMax(usage.vehiculos.limite);
+        setLimitOpen(true);
+        return;
+      }
+    } catch { /* let backend guard catch it */ }
     setEditing(null);
     reset({ cliente_id: 0, patente: '', marca: '', modelo: '', anio: undefined, color: '', vin: '', km_actual: 0 });
     setModalOpen(true);
@@ -187,6 +200,14 @@ export default function VehiculosPage() {
           </div>
         </form>
       </Modal>
+
+      <PlanLimitModal
+        open={limitOpen}
+        onClose={() => setLimitOpen(false)}
+        resource="vehiculos"
+        usado={limitUsado}
+        limite={limitMax}
+      />
     </div>
   );
 }

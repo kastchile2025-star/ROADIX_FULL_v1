@@ -503,6 +503,23 @@ export class SuscripcionesService {
     return this.suscripcionRepo.save(suscripcion);
   }
 
+  async editarSuscripcion(
+    tallerId: number,
+    dto: { periodo?: string; fecha_fin?: string },
+  ) {
+    const suscripcion = await this.getActivePlan(tallerId);
+
+    if (dto.periodo && ['mensual', 'anual'].includes(dto.periodo)) {
+      suscripcion.periodo = dto.periodo as SuscripcionPeriodo;
+    }
+
+    if (dto.fecha_fin) {
+      suscripcion.fecha_fin = new Date(dto.fecha_fin);
+    }
+
+    return this.suscripcionRepo.save(suscripcion);
+  }
+
   async procesarCobrosRecurrentes() {
     const hoy = new Date();
 

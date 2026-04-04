@@ -324,16 +324,28 @@ export default function BillingPage() {
 
     setEnterpriseLoading(true);
     try {
-      await billingService.solicitarEnterprise({
-        ...enterpriseForm,
-        nombre,
-        taller_nombre: tallerNombre,
-        email,
-        telefono: enterpriseForm.telefono?.trim() || undefined,
-        mensaje: enterpriseForm.mensaje?.trim() || undefined,
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          access_key: '766630d2-2479-4906-ab57-41e6036c2ed0',
+          subject: `Solicitud Enterprise ROADIX - ${tallerNombre}`,
+          from_name: nombre,
+          nombre,
+          taller_nombre: tallerNombre,
+          email,
+          telefono: enterpriseForm.telefono?.trim() || 'No informado',
+          periodo: enterpriseForm.periodo,
+          mensaje: enterpriseForm.mensaje?.trim() || 'Sin mensaje adicional',
+        }),
       });
-      toast.success(t('billing.enterpriseToastSuccess'));
-      setEnterpriseSent(true);
+      const result = await res.json();
+      if (result.success) {
+        toast.success(t('billing.enterpriseToastSuccess'));
+        setEnterpriseSent(true);
+      } else {
+        throw new Error(result.message || 'Web3Forms error');
+      }
     } catch (e: unknown) {
       toast.error(getApiErrorMessage(e, t('billing.enterpriseToastError')));
     } finally {
